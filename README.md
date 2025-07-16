@@ -1,2 +1,12 @@
-# some-25
-This project dives into the elegant symmetry of vector sums in 2D, 3D and even in nD. Starting with a circle and Euler's formula, we transition into spheres and uncover why equally spaced vectors — even in higher dimensions — cancel out. Includes visual proofs, algebraic reasoning, and Python simulations.
+# 🌀 Vector Symmetry: From Circles to Spheres
+
+## 📽️ A SoME 2025 Project  
+This project explores a beautiful mathematical phenomenon:  
+**Symmetric unit vectors placed evenly around a circle or a sphere or a hypersphere always sum to zero.**
+
+We start with a 2D case using Euler’s formula and geometric intuition. Then, we extend the idea to 3D using spherical coordinates and group theory.  
+
+In both cases, we provide **visual, algebraic, and computational verification**.
+
+---
+
