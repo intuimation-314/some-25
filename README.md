@@ -1,4 +1,4 @@
-# 🌀 Vector Symmetry: From Circles to Spheres
+# 🌀 Vector Symmetry
 
 ## 📽️ A SoME 2025 Project  
 This project explores a beautiful mathematical phenomenon:  
