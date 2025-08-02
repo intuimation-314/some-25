@@ -1,0 +1,289 @@
+\documentclass{article}
+\usepackage{amsmath, amssymb}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usepackage{lipsum}
+
+\title{Nature Loves Symmetry}
+\author{}
+\date{}
+
+\begin{document}
+
+\maketitle
+\section*{Part 1: Introducing the Problem through Physical Intuition}
+
+Imagine you tie \textbf{two positive charges} to the ends of a string—and let go.
+
+\textit{What happens?}
+
+They fly apart in opposite directions, settling \(180^\circ\) apart along a straight line. That’s not surprising—like charges repel, and the straight line gives them maximum separation.
+
+Now let’s raise the stakes.
+
+What if you connect \textbf{three positive charges} with strings—forming a triangle? You let go.
+
+This time, something beautiful happens: they arrange themselves into a \textit{perfect equilateral triangle}, each one spaced exactly \(120^\circ\) from the others. Why?
+
+Because, once again, they’re trying to get as far apart as possible.
+
+\medskip
+
+This raises a deeper question:
+
+\begin{quote}
+    \textit{Why do they settle into such precise, symmetric shapes?}
+\end{quote}
+
+Of course, the system wants to minimize repulsion. But there's more. These symmetric arrangements \textbf{minimize the total electrostatic potential energy}—and even more remarkably, they ensure the \textbf{vector sum of all forces is zero}:
+
+\[
+\sum_{k=0}^{n-1} \vec{v}_k = 0
+\]
+
+\medskip
+
+Let’s go one step further.
+
+What if we place \textbf{four positive charges}?
+
+Our intuition might suggest they’d form a square in a plane, spaced \(90^\circ\) apart.
+
+But surprisingly, they don't.
+
+Instead, they settle into a \textbf{regular tetrahedron} in 3D space—a triangular pyramid where all edges are equal.
+
+Why? Because in three dimensions, a square is not optimal. The tetrahedron provides better spacing—it allows each charge to be as far from the others as possible. More precisely, it achieves \textbf{maximum symmetry}, and ensures that the \textbf{vector sum of all forces is zero in three dimensions}.
+
+The symmetry I am talking about, interestingly, connects to a well-known classic problem in physics called the \textbf{Thomson problem}.
+
+It asks:
+
+\begin{quote}
+    How do multiple electrons arrange themselves on the surface of a sphere to minimize their electrostatic potential energy?
+\end{quote}
+
+The answer? They spread out as symmetrically as possible—often forming the vertices of \textbf{Platonic solids}.
+
+For example:
+\begin{itemize}
+    \item With 4 charges, they form a \textbf{tetrahedron}.
+    \item With 6 charges, an \textbf{octahedron}—three on a plane, two above and below.
+    \item With 12, an \textbf{icosahedron}, and so on.
+\end{itemize}
+
+So even in nature, when charges repel on a sphere, the optimal configuration reflects the same principles we’ve been exploring: symmetry, balance, and cancellation. 
+
+In this video, we’re not solving the Thomson problem explicitly, but we’re kind of using it as inspiration—a beautiful example of how symmetry emerges from physical constraints.
+
+\medskip
+
+That leads us to a profound insight:
+
+\begin{quote}
+
+\textbf{Nature doesn’t arrange things randomly. It arranges them symmetrically.}
+
+Symmetry brings balance, stabilty and efficiency.
+\end{quote}
+
+\medskip
+
+\textbf{Again and again, we see it everywhere in nature:}
+
+\begin{itemize}
+    \item Electric charges placed on a ring in 2D—or across a sphere in 3D—arrange themselves so that the net electric field at the center becomes zero.
+    
+    \item Molecules like methane $CH_4$ form a tetrahedral shape because it gives maximum separation between the hydrogen atoms—making the molecule stable and non-polar.
+    
+    \item Snowflakes grow with six-fold symmetry—forming perfect, repeating hexagonal patterns.
+    
+    \item Even galaxies swirl into spiral arms, sculpted by gravity into breathtakingly symmetric forms.
+\end{itemize}
+
+\textbf{And inspired by this symmetry, we humans design:}
+\begin{itemize}
+    \item Fan blades and turbines are carefully arranged in perfect radial spacing—so they spin smoothly and stay balanced.
+
+    \item Speaker cones and satellite dishes use symmetry to spread waves evenly in all directions.
+
+    \item Architects design domes and arches not just because they’re beautiful—but because radial symmetry makes them strong and efficient.
+
+\end{itemize}
+
+Symmetry is everywhere. Nature loves it.
+And so do we.
+
+\section*{Part 2: Revisiting the 2D Case – Starting Simple}
+
+In my last video, we explored a seemingly simple question:
+
+\begin{quote}
+    \textit{What is the sum of multiple vectors arranged symmetrically in 2D, spaced equally around a circle?}
+\end{quote}
+
+If we confine \( n \) identical charges to a plane and tie them up with strings, they naturally arrange themselves \textbf{evenly spaced along a circle}. Each charge can be thought of as an arrow pointing outward from the center—forming a regular polygon, perfectly symmetric.
+
+And what we found was beautiful:
+
+\[
+\sum_{k=0}^{n-1} \vec{v}_k = 0
+\]
+
+The vectors balanced each other perfectly—their sum vanished.
+
+Although the problem seems deceptively simple, and the result feels almost obvious, this concept appears in countless places in physics and nature.
+
+We first approached it intuitively: if you connect these vectors head-to-tail, they form a closed polygon. That loop implies there’s no net displacement—so the sum must be zero.
+
+But mathematicians are not always satisfied with visual reasoning alone. So, I wanted to offer a deeper mathematical proof.
+
+That’s where such an abstract concept like \textbf{Euler’s formula} provided an elegant and precise solution to the problem.
+
+
+I won't dive too deep into the derivation here—I've included a link in the description below if you'd like to explore it in detail. 
+
+But here's the core idea:
+
+We first place these vectors into the \(xy\)-plane. For simplicity, we assume each vector has magnitude 1.
+
+Each of these vectors can be expressed as the sum of its \(x\)- and \(y\)-components, given by:
+
+\[
+\vec{v}_k = \cos\left(\frac{2\pi k}{n}\right)\, \hat{\imath} + \sin\left(\frac{2\pi k}{n}\right)\, \hat{\jmath}
+\quad \text{for } k = 0, 1, \dots, n-1
+\]
+
+Then, the total vector sum is:
+
+\[
+\sum_{k=0}^{n-1} \vec{v}_k =
+\left(
+\sum_{k=0}^{n-1} \cos\left(\frac{2\pi k}{n}\right),\,
+\sum_{k=0}^{n-1} \sin\left(\frac{2\pi k}{n}\right)
+\right)
+\]
+\medskip
+
+To show that the total vector sum is zero, we must prove that both the \(x\)- and \(y\)-components sum to zero simultaneously:
+
+\[
+\sum_{k=0}^{n-1} \cos\left(\frac{2\pi k}{n}\right) = 0 \quad \text{and} \quad \sum_{k=0}^{n-1} \sin\left(\frac{2\pi k}{n}\right) = 0
+\]
+
+There might be ways to approach this using trigonometry—I haven’t found one myself. 
+\textit{If anyone has a clever trigonometric trick, feel free to drop it in the comments below!} 
+
+But there’s a far more elegant way to prove it using \textbf{Euler’s formula}.
+
+\medskip
+
+But even before diving into that, I wanted to verify this computationally. So I wrote a simple Python program to sum up these vectors. And yes—the result is indeed zero. (See the code snippet and screenshot.)
+
+\medskip
+
+Now, let’s move to a more mathematical approach.
+
+We move these group of vectors into the complex plane, where the \(x\)-component corresponds to the real part and the \(y\)-component to the imaginary part.
+
+Thanks to Euler's formula, each vector can be written in exponential form as:
+
+\[
+\vec{v}_k = e^{\frac{2\pi i k}{n}} \quad \text{for } k = 0, 1, \dots, n-1
+\]
+
+When we sum all these vectors, we get a geometric series:
+
+\[
+\sum_{k=0}^{n-1} e^{\frac{2\pi i k}{n}} = 0
+\]
+
+If you're familiar with the concept of \textit{roots of unity}, the result is even more immediate.
+
+\medskip
+
+The conclusion is exact, rigorous, and beautiful: the symmetry of the circle leads to perfect cancellation in the complex plane.
+
+This same principle can be extended beyond discrete vectors. Indeed, we can prove that the total vector sum is zero for a \textbf{continuous distribution} of vectors arranged symmetrically around a circle—like a charged ring. We can think of it as composed of infinitely many infinitesimal charge elements \( dQ \). According to Coulomb’s Law, each element produces an electric field at the center of the ring, directed radially outward along the line joining the element and the center.
+
+Visually, for every \( dQ \), there is a directly opposite element \( dQ' \) whose electric field cancels it out. But can we provide a mathematical, rigorous proof?
+
+As \( n \to \infty \), the discrete sum
+
+\[
+\sum_{k=0}^{n-1} e^{\frac{2\pi i k}{n}}
+\]
+
+can be approximated by an integral using Rieman sums:
+
+\[
+\sum_{k=0}^{n-1} e^{\frac{2\pi i k}{n}} \quad \longrightarrow \quad \frac{n}{2\pi} \int_{0}^{2\pi} e^{i\theta} \, d\theta
+\]
+
+Evaluating the integral:
+
+\[
+\int_{0}^{2\pi} e^{i\theta} \, d\theta = 0
+\]
+
+So, even in the continuous limit, the result still holds:
+
+\[
+\vec{\mathbb{V}} = 0
+\]
+
+The symmetry of the circle ensures perfect cancellation—whether we have finitely many vectors or an infinite continuum.
+
+
+But that was all in two dimensions.
+
+\bigskip
+
+This time, I wanted to go deeper.
+
+\begin{quote}
+What happens in \textbf{three dimensions}? Can we still prove the result?
+\end{quote}
+
+Just like a ring of charges in 2D balances itself into a perfect circle, we can imagine a \textbf{charged sphere} in 3D. And just like in 2D we have molecules such as  $BF_3$ that form flat, triangular shapes in two dimensions, In 3D molecules like 
+$CH_4$ form beautifully symmetric \textbf{tetrahedrons} in three dimensions.
+
+So the question becomes:
+\begin{quote}
+If symmetry gives us such balance in 2D and 3D... what happens in \textbf{four dimensions}? Or five?
+\end{quote}
+
+Can we still talk about perfect balance, equal spacing, and vanishing vector sums in these higher-dimensional spaces?
+
+Let’s find out.
+
+\section*{Part 3: Why Proving It in 3D Is So Tricky}
+
+Taking the leap from 2D to 3D sounds simple—but proving things algebraically becomes surprisingly tricky.
+
+At first, I thought perhaps we could express these vectors as a kind of nested double sum over spherical coordinates. Something like this:
+
+\[
+\sum_{p=0}^{m} \sum_{k=0}^{n-1}
+\left(
+    \sin\left(\frac{\pi p}{m}\right)\cos\left(\frac{2\pi k}{n}\right),
+    \sin\left(\frac{\pi p}{m}\right)\sin\left(\frac{2\pi k}{n}\right),
+    \cos\left(\frac{\pi p}{m}\right)
+\right)
+= (0, 0, 0)
+\]
+
+This arrangement does indeed give a net sum of zero. But here’s the catch: this kind of symmetry is a bit different. I even tried writing a program to generate symmetric points and sum their vectors. But something felt off—it wasn’t clicking.
+
+\medskip
+
+That’s when a helpful comment on my last video pointed me toward a very different kind of proof—one I hadn’t considered:
+
+A proof based on rotational symmetry, inspired by ideas from group theory.
+
+He demonstrated the idea beautifully in 2D, which hinted me to  extended to 3D and even higher dimensions.
+
+So before diving into higher-dimensional space, let’s revisit the 2D case—this time using rotational symmetry as our tool.
+
+
+\end{document}
