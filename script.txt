@@ -70,8 +70,6 @@ These beautiful symmetric arrangements are not just visually pleasing—they ser
     \item \textbf{Ensure the vector sum of all forces is zero}, meaning each charge is in perfect \textbf{mechanical equilibrium}.
 \end{itemize}
 
-That’s the key: \textbf{Vector cancellation} leads to \textbf{equilibrium}, and equilibrium corresponds to the \textbf{lowest energy state}.
-
 In this video, we’re not solving the Thomson problem explicitly, but we’re using it as a powerful base. It shows us that:
 
 \begin{quote}
@@ -116,8 +114,6 @@ In my last video, we explored a seemingly simple question:
 \begin{quote}
     \textit{What is the sum of multiple vectors arranged symmetrically in 2D, spaced equally around a circle?}
 \end{quote}
-
-If we confine \( n \) identical charges to a plane and tie them up with strings, they naturally arrange themselves \textbf{evenly spaced along a circle}. Each charge can be thought of as an arrow pointing outward from the center—forming a regular polygon, perfectly symmetric.
 
 And what we found was beautiful:
 
@@ -539,5 +535,4 @@ Because, just like in our world, an \textbf{n-dimensional} hypersphere is more o
 \section*{Part 5: A New Kind of Proof — Group Theory and Symmetry}
 Until now, everything we've seen has been analytic. We've approached the vector cancellation problem by summing components, using trigonometric identities, integrals, and spherical coordinates. Personally, I'm an analysis guy.
 
-...
 \end{document}
