@@ -13,29 +13,23 @@
 \maketitle
 \section*{Part 1: Introducing the Problem through Physical Intuition}
 
-Imagine you tie \textbf{two positive charges} to the ends of a string—and let go.
+Imagine you tie \textbf{two electrons} to the ends of a string—and let go.
 
 \textit{What happens?}
 
 They fly apart in opposite directions, settling \(180^\circ\) apart along a straight line. That’s not surprising—like charges repel, and the straight line gives them maximum separation.
 
-Now let’s raise the stakes.
+What if you connect \textbf{three electrons} with strings? You let go.
 
-What if you connect \textbf{three positive charges} with strings—forming a triangle? You let go.
-
-This time, something beautiful happens: they arrange themselves into a \textit{perfect equilateral triangle}, each one spaced exactly \(120^\circ\) from the others. Why?
-
-Because, once again, they’re trying to get as far apart as possible.
+This time : they arrange themselves into a \textit{perfect equilateral triangle}, each one spaced exactly \(120^\circ\) from the others.
 
 \medskip
-
-This raises a deeper question:
 
 \begin{quote}
     \textit{Why do they settle into such precise, symmetric shapes?}
 \end{quote}
 
-Of course, the system wants to minimize repulsion. But there's more. These symmetric arrangements \textbf{minimize the total electrostatic potential energy}—and even more remarkably, they ensure the \textbf{vector sum of all forces is zero}:
+Of course, the system wants to minimize repulsion, and these symmetric arrangements \textbf{gives maximum separation}—and even more remarkably, they ensure the \textbf{vector sum of all forces is zero i.e, it's in equilibrium}:
 
 \[
 \sum_{k=0}^{n-1} \vec{v}_k = 0
@@ -45,19 +39,17 @@ Of course, the system wants to minimize repulsion. But there's more. These symme
 
 Let’s go one step further.
 
-What if we place \textbf{four positive charges}?
+What if we place \textbf{four electrons}?
 
 Our intuition might suggest they’d form a square in a plane, spaced \(90^\circ\) apart.
 
-But surprisingly, they don't.
+But they don't. We live in 3D world. Instead, they settle into a \textbf{regular tetrahedron} in the 3D space.
 
-Instead, they settle into a \textbf{regular tetrahedron} in 3D space—a triangular pyramid where all edges are equal.
+Why? Because in three dimensions, tetrahedron provides better spacing—it allows each charge to be as far from the others as possible. More precisely, it achieves \textbf{maximum symmetry}, and ensures that the \textbf{vector sum of all forces is zero in three dimensions}.
 
-Why? Because in three dimensions, a square is not optimal. The tetrahedron provides better spacing—it allows each charge to be as far from the others as possible. More precisely, it achieves \textbf{maximum symmetry}, and ensures that the \textbf{vector sum of all forces is zero in three dimensions}.
+The symmetry I’m talking about, interestingly, connects to a well-known classic problem in physics called the \textbf{Thomson problem}.
 
-The symmetry I am talking about, interestingly, connects to a well-known classic problem in physics called the \textbf{Thomson problem}.
-
-It asks:
+Instead of tying charges with strings, the Thomson problem asks:
 
 \begin{quote}
     How do multiple electrons arrange themselves on the surface of a sphere to minimize their electrostatic potential energy?
@@ -72,36 +64,35 @@ For example:
     \item With 12, an \textbf{icosahedron}, and so on.
 \end{itemize}
 
-So even in nature, when charges repel on a sphere, the optimal configuration reflects the same principles we’ve been exploring: symmetry, balance, and cancellation. 
+These beautiful symmetric arrangements are not just visually pleasing—they serve a deeper purpose in physics. They simultaneously:
+\begin{itemize}
+    \item \textbf{Minimize the total electrostatic potential energy}, and
+    \item \textbf{Ensure the vector sum of all forces is zero}, meaning each charge is in perfect \textbf{mechanical equilibrium}.
+\end{itemize}
 
-In this video, we’re not solving the Thomson problem explicitly, but we’re kind of using it as inspiration—a beautiful example of how symmetry emerges from physical constraints.
+That’s the key: \textbf{Vector cancellation} leads to \textbf{equilibrium}, and equilibrium corresponds to the \textbf{lowest energy state}.
 
-\medskip
-
-That leads us to a profound insight:
+In this video, we’re not solving the Thomson problem explicitly, but we’re using it as a powerful base. It shows us that:
 
 \begin{quote}
-
 \textbf{Nature doesn’t arrange things randomly. It arranges them symmetrically.}
-
-Symmetry brings balance, stabilty and efficiency.
 \end{quote}
 
+
+Symmetry brings balance, stability, and efficiency.
 \medskip
 
-\textbf{Again and again, we see it everywhere in nature:}
+\textbf{We see this again and again in nature:}
 
 \begin{itemize}
     \item Electric charges placed on a ring in 2D—or across a sphere in 3D—arrange themselves so that the net electric field at the center becomes zero.
-    
-    \item Molecules like methane $CH_4$ form a tetrahedral shape because it gives maximum separation between the hydrogen atoms—making the molecule stable and non-polar.
-    
-    \item Snowflakes grow with six-fold symmetry—forming perfect, repeating hexagonal patterns.
-    
-    \item Even galaxies swirl into spiral arms, sculpted by gravity into breathtakingly symmetric forms.
+
+    \item Molecules like methane ($\mathrm{CH_4}$) form a tetrahedral shape, maximizing separation between atoms and resulting in a stable, non-polar configuration.
+
+    \item Water ripples form circular waves, snowflakes grow with six-fold symmetry, and water droplets naturally take on a spherical shape.
 \end{itemize}
 
-\textbf{And inspired by this symmetry, we humans design:}
+\textbf{And inspired by nature, we humans design:}
 \begin{itemize}
     \item Fan blades and turbines are carefully arranged in perfect radial spacing—so they spin smoothly and stay balanced.
 
@@ -113,6 +104,10 @@ Symmetry brings balance, stabilty and efficiency.
 
 Symmetry is everywhere. Nature loves it.
 And so do we.
+
+But can we prove that symmetry truly brings balance—and equilibrium?
+
+Let's begin with the most familiar setting: the flat, two-dimensional plane.
 
 \section*{Part 2: Revisiting the 2D Case – Starting Simple}
 
@@ -202,11 +197,7 @@ If you're familiar with the concept of \textit{roots of unity}, the result is ev
 
 \medskip
 
-The conclusion is exact, rigorous, and beautiful: the symmetry of the circle leads to perfect cancellation in the complex plane.
-
-This same principle can be extended beyond discrete vectors. Indeed, we can prove that the total vector sum is zero for a \textbf{continuous distribution} of vectors arranged symmetrically around a circle—like a charged ring. We can think of it as composed of infinitely many infinitesimal charge elements \( dQ \). According to Coulomb’s Law, each element produces an electric field at the center of the ring, directed radially outward along the line joining the element and the center.
-
-Visually, for every \( dQ \), there is a directly opposite element \( dQ' \) whose electric field cancels it out. But can we provide a mathematical, rigorous proof?
+This same principle can be extended beyond discrete vectors. Indeed, we can prove that the total vector sum is zero for a \textbf{continuous distribution} of vectors arranged symmetrically around a circle—like a charged ring. Visually, we can think of it as composed of infinitely many tiny charge elements \( dQ \). For every \( dQ \), there is a directly opposite element \( dQ' \) whose electric field cancels it out. But can we provide a mathematical, rigorous proof? Yes
 
 As \( n \to \infty \), the discrete sum
 
@@ -232,36 +223,63 @@ So, even in the continuous limit, the result still holds:
 \vec{\mathbb{V}} = 0
 \]
 
-The symmetry of the circle ensures perfect cancellation—whether we have finitely many vectors or an infinite continuum.
-
-
-But that was all in two dimensions.
+That was all in two dimensions.
 
 \bigskip
 
 This time, I wanted to go deeper.
 
 \begin{quote}
-What happens in \textbf{three dimensions}? Can we still prove the result?
+What happens in \textbf{three dimensions}?
 \end{quote}
 
-Just like a ring of charges in 2D balances itself into a perfect circle, we can imagine a \textbf{charged sphere} in 3D. And just like in 2D we have molecules such as  $BF_3$ that form flat, triangular shapes in two dimensions, In 3D molecules like 
-$CH_4$ form beautifully symmetric \textbf{tetrahedrons} in three dimensions.
+Just like a ring of charges in 2D, we can imagine a \textbf{charged sphere} in 3D. And just like in 2D we have molecules such as  $BF_3$ that form flat, triangular shapes, In 3D molecules like 
+$CH_4$ form beautifully symmetric \textbf{tetrahedrons}.
 
-So the question becomes:
+Of course, such a symmetry gives balance in 3D too. But can we still prove the result?
+
 \begin{quote}
-If symmetry gives us such balance in 2D and 3D... what happens in \textbf{four dimensions}? Or five?
-\end{quote}
 
-Can we still talk about perfect balance, equal spacing, and vanishing vector sums in these higher-dimensional spaces?
+And If symmetry gives us such balance in 2D and 3D... what happens in \textbf{four dimensions}? Or even five?
+\end{quote}
 
 Let’s find out.
 
 \section*{Part 3: Why Proving It in 3D Is So Tricky}
 
-Taking the leap from 2D to 3D sounds simple—but proving things algebraically becomes surprisingly tricky.
+Taking the leap from 2D to 3D might sound straightforward—but algebraically proving symmetry becomes surprisingly tricky.
 
-At first, I thought perhaps we could express these vectors as a kind of nested double sum over spherical coordinates. Something like this:
+In 2D, things are neat: we only deal with a single angle, \( \theta \), and the coordinates of the vectors on the unit circle are given by:
+
+\[
+(\cos \theta, \sin \theta)
+\]
+
+As \( \theta \) sweeps from \( 0 \) to \( 2\pi \), the sum becomes:
+
+\[
+\sum_{k=0}^{n-1} \left( \cos\left(\frac{2\pi k}{n}\right),\, \sin\left(\frac{2\pi k}{n}\right) \right)
+\]
+
+Simple, symmetric, and the result is zero. Beautiful.
+
+\medskip
+
+So can we do something similar in 3D?
+
+In spherical coordinates, each point on the sphere is determined by two angles:
+\begin{itemize}
+    \item \( \theta \in [0, 2\pi) \): the azimuthal angle (like longitude),
+    \item \( \phi \in [0, \pi] \): the polar angle (like latitude).
+\end{itemize}
+
+The 3D coordinates of a unit vector pointing in that direction are:
+
+\[
+(\sin \phi \cos \theta,\; \sin \phi \sin \theta,\; \cos \phi)
+\]
+
+So we can construct a symmetric configuration using a nested double sum over these angles:
 
 \[
 \sum_{p=0}^{m} \sum_{k=0}^{n-1}
@@ -273,17 +291,253 @@ At first, I thought perhaps we could express these vectors as a kind of nested d
 = (0, 0, 0)
 \]
 
-This arrangement does indeed give a net sum of zero. But here’s the catch: this kind of symmetry is a bit different. I even tried writing a program to generate symmetric points and sum their vectors. But something felt off—it wasn’t clicking.
+This indeed gives a total sum of zero—and it follows naturally from the symmetry of sine and cosine sums we already used in 2D.
+
+We can visualize it this way: for a fixed \(\phi\), rotating \(\theta\) through \(2\pi\) generates a ring of vectors evenly spaced around a circle—just like the 2D case. Since the vector sum for each ring vanishes, we repeat this process for multiple values of \(\phi\), stacking rings at different latitudes. 
+
+So intuitively, the total vector sum vanishes because each ring contributes zero.
+
+Mathematically, this means we can factor out the \(\phi\)-dependent terms and apply the same identity we proved earlier:
+
+\[
+\sum_{p=0}^{m}
+\left(
+    \sin\left(\frac{\pi p}{m}\right) \sum_{k=0}^{n-1} \cos\left(\frac{2\pi k}{n}\right),
+    \sin\left(\frac{\pi p}{m}\right) \sum_{k=0}^{n-1} \sin\left(\frac{2\pi k}{n}\right),
+    n \cdot \cos\left(\frac{\pi p}{m}\right)
+\right)
+\]
+
+\[
+\sum_{k=0}^{n-1}
+\left(
+    \cos\left(\frac{2\pi k}{n}\right),
+    \sin\left(\frac{2\pi k}{n}\right)
+\right)
+= (0, 0)
+\]
+
+To show the \(z\)-component vanishes, we observe:
+
+\[
+\sum_{p=0}^{m} \cos\left(\frac{\pi p}{m}\right)
+\]
+
+This is a symmetric sum over \(\cos(\phi)\), which also cancels out when sampled evenly over the interval \([0, \pi]\). You can even apply Euler's formula again for a more elegant proof (see attached notes in the document for a deeper dive).
 
 \medskip
 
-That’s when a helpful comment on my last video pointed me toward a very different kind of proof—one I hadn’t considered:
+So once again, even in 3D, the balanced arrangement of vectors gives us cancellation.
 
-A proof based on rotational symmetry, inspired by ideas from group theory.
+\medskip
 
-He demonstrated the idea beautifully in 2D, which hinted me to  extended to 3D and even higher dimensions.
+But here’s the twist:
 
-So before diving into higher-dimensional space, let’s revisit the 2D case—this time using rotational symmetry as our tool.
+This double sum \textit{fails} for small numbers of charges—like 4, 5, or 6. Why? Because those points don’t arrange themselves along latitudes and longitudes. Instead, they settle into beautifully symmetric shapes known as \textbf{Platonic solids}.
 
+This is at the heart of the Thomson problem in physics that we talked about:
 
+\begin{itemize}
+    \item For example, with 4 charges, they form a perfect \textbf{tetrahedron}.
+\end{itemize}
+
+where angle between any two vectors is about \(109.5^\circ\)— but this configuration that can never be produced by our uniform double sum formula.
+
+Even if you try writing a program to generate coordinates using that method, it won’t match.
+Yet, you can still verify visually that the vector sum of Platonic solids is zero:
+
+\begin{itemize}
+    \item In a tetrahedron, three of the vectors lie below the \(xy\)-plane. When we project them onto the \(xy\)-plane, we see that they are arranged symmetrically and cancel each other out. The fourth vector, pointing upward, balances the net contribution along the \(z\)-axis—making the total vector sum zero.
+
+    \item For five charges: three in a plane cancel out, and two above and below balance them.
+    \item For six: four in a square plane and one each above and below—again, a perfect symmetry.
+\end{itemize}
+
+\medskip
+
+But here’s the key insight:
+
+\textbf{There are only five Platonic solids.} As the number of charges increases beyond these, perfectly regular configurations no longer exist.
+
+And this is where the double sum starts to shine.
+
+While it fails for small \(n\), it becomes more accurate as \(n\) grows. The distribution begins to approximate a uniform spread across the sphere. 
+
+In fact, as we increase \(n\) and \(m\), the double sum begins to look more like a Riemann sum—and eventually, it converges to a double integral over the sphere.
+
+\begin{quote}
+\textit{In the limit as \(n \to \infty\), the double sum becomes a surface integral—and the result is again zero.}
+\end{quote}
+
+\[
+\sum_{p=0}^{m} \sum_{k=0}^{n-1}
+\left(
+    \sin\left(\frac{\pi p}{m}\right)\cos\left(\frac{2\pi k}{n}\right),
+    \sin\left(\frac{\pi p}{m}\right)\sin\left(\frac{2\pi k}{n}\right),
+    \cos\left(\frac{\pi p}{m}\right)
+\right)
+\longrightarrow
+\int_0^{\pi} \int_0^{2\pi}
+\begin{pmatrix}
+\sin\phi\cos\theta \\
+\sin\phi\sin\theta \\
+\cos\phi
+\end{pmatrix}
+\sin\phi \, d\theta \, d\phi
+\]
+
+Evaluating the integral gives:
+
+\[
+\int_0^{\pi} \int_0^{2\pi}
+\begin{pmatrix}
+\sin\phi\cos\theta \\
+\sin\phi\sin\theta \\
+\cos\phi
+\end{pmatrix}
+d\theta \, d\phi
+=
+\begin{pmatrix}
+0 \\
+0 \\
+0
+\end{pmatrix}
+\]
+
+This confirms that the continuous vector sum over the sphere also vanishes perfectly due to spherical symmetry.
+
+\section*{Part 4: Beyond 3D — Climbing into Higher Dimensions}
+
+Once we’ve proven that in 3D, the natural question arises:
+
+\begin{quote}
+\textit{Can we extend this to 4D? 5D? All the way to \( n \) dimensions?}
+\end{quote}
+
+Surprisingly, yes. And here’s how.
+
+\medskip
+
+In four dimensions, points on the surface of a 4D hypersphere (a 3-sphere) can be represented using three angles: \(\phi_1, \phi_2, \theta\). A typical parametrization looks like:
+
+\[
+\vec{v}(\phi_1, \phi_2, \theta) =
+\begin{pmatrix}
+\sin\phi_1 \sin\phi_2 \cos\theta \\
+\sin\phi_1 \sin\phi_2 \sin\theta \\
+\sin\phi_1 \cos\phi_2 \\
+\cos\phi_1
+\end{pmatrix}
+\]
+
+To simulate a symmetric distribution in 4D, we construct a triple sum:
+
+\[
+\sum_{r=0}^{l} \sum_{p=0}^{m} \sum_{k=0}^{n-1} \vec{v}\left( \frac{\pi r}{l}, \frac{\pi p}{m}, \frac{2\pi k}{n} \right)
+\]
+
+Just like in the 3D case, we can fix the outermost angle (say, \(\phi_1 = \frac{\pi r}{l}\)) and factor out the corresponding scalar terms. The remaining double sum over \(\phi_2\) and \(\theta\) looks exactly like the 3D symmetric case, where we already proved the vector sum is zero.
+
+So the full 4D sum becomes:
+
+\[
+\sum_{r=0}^{l}
+\sin\left( \frac{\pi r}{l} \right)
+\cdot
+\left[
+\sum_{p=0}^{m}
+\sum_{k=0}^{n-1}
+\begin{pmatrix}
+\sin\left(\frac{\pi p}{m}\right)\cos\left(\frac{2\pi k}{n}\right) \\
+\sin\left(\frac{\pi p}{m}\right)\sin\left(\frac{2\pi k}{n}\right) \\
+\cos\left(\frac{\pi p}{m}\right)
+\end{pmatrix}
+\right]
+= \vec{0}
+\]
+
+Since the entire inner double sum evaluates to \(\vec{0}\) (from the 3D result), multiplying it by any scalar—including \(\sin\left( \frac{\pi r}{l} \right)\)—still gives zero. Therefore:
+
+\[
+\sum_{r=0}^{l}
+\sin\left( \frac{\pi r}{l} \right)
+\cdot \vec{0} = \vec{0}
+\]
+
+And as we take the limit \( l, m, n \to \infty \), the triple sum over the 4D hypersphere becomes a triple integral over its angular parameters:
+
+\[
+\int_0^\pi \int_0^\pi \int_0^{2\pi}
+\vec{v}(\phi_1, \phi_2, \theta) \cdot
+\sin^2\phi_1 \sin\phi_2 \; d\theta \, d\phi_2 \, d\phi_1 = \vec{0}
+\]
+
+\medskip
+
+\subsection*{Generalizing to \(n\) Dimensions}
+
+The same logic applies as we move to 5D, 6D, and beyond.
+
+In \(n\)-dimensional space, we use \(n-1\) angles \(\phi_1, \phi_2, \ldots, \phi_{n-2}, \theta\) to describe a point on the unit hypersphere.
+
+We create an \((n-1)\)-nested sum to represent the sum over all directions on the unit hypersphere:
+
+\[
+\sum_{p_1=0}^{m_1} \sum_{p_2=0}^{m_2} \cdots \sum_{p_{n-2}=0}^{m_{n-2}} \sum_{k=0}^{n-1} \vec{v}(p_1, \ldots, p_{n-2}, k)
+\]
+
+Where the vector \(\vec{v}\) has coordinates:
+
+\[
+\begin{aligned}
+\vec{v} &= \left(
+\begin{array}{c}
+\sin(\phi_1) \sin(\phi_2) \cdots \sin(\phi_{n-2}) \cos(\theta) \\
+\sin(\phi_1) \sin(\phi_2) \cdots \sin(\phi_{n-2}) \sin(\theta) \\
+\sin(\phi_1) \sin(\phi_2) \cdots \cos(\phi_{n-2}) \\
+\vdots \\
+\cos(\phi_1)
+\end{array}
+\right)
+\end{aligned}
+\]
+
+Each angle is discretized as:
+\[
+\phi_j = \frac{\pi p_j}{m_j}, \quad \theta = \frac{2\pi k}{n}
+\]
+
+Each time, we factor out the outermost sum—fixing one angle—and apply the result from the previous dimension. This gives us a kind of mathematical induction over dimensions:
+
+\begin{quote}
+\textit{If the vector sum is zero in \( n \) dimensions, it must also be zero in \( n+1 \) dimensions.}
+\end{quote}
+
+This recursive structure reveals that the symmetry-driven vector cancellation holds true in all dimensions.
+
+As \(m_1, m_2, \ldots, m_{n-2}, n \to \infty\), the nested sum becomes a multiple integral over the hypersphere:
+
+\[
+\int_0^{\pi} \cdots \int_0^{\pi} \int_0^{2\pi} \vec{v}(\phi_1, \ldots, \phi_{n-2}, \theta) 
+\prod_{j=1}^{n-2} \sin^{j}(\phi_j) \, d\theta \, d\phi_{n-2} \cdots d\phi_1 = \vec{0}
+\]
+
+This integral evaluates to the zero vector.
+
+\medskip
+
+How amazing is that?
+
+No matter how many dimensions you go up—2D, 3D, 4D, 5D, and so on—\textbf{perfect symmetry always leads to perfect cancellation}.
+
+This is the power of mathematics: even though we cannot visualize symmetry beyond three dimensions, we have a language to describe it precisely. And remarkably, that symmetry still leads to perfect balance.
+
+So, if we were to drop water in an -dimensional world, the droplet would naturally take the shape of an \textbf{n-dimensional hypersphere}.
+
+Because, just like in our world, an \textbf{n-dimensional} hypersphere is more optimal.
+
+\section*{Part 5: A New Kind of Proof — Group Theory and Symmetry}
+Until now, everything we've seen has been analytic. We've approached the vector cancellation problem by summing components, using trigonometric identities, integrals, and spherical coordinates. Personally, I'm an analysis guy.
+
+...
 \end{document}
