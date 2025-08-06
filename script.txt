@@ -533,6 +533,19 @@ So, if we were to drop water in an -dimensional world, the droplet would natural
 Because, just like in our world, an \textbf{n-dimensional} hypersphere is more optimal.
 
 \section*{Part 5: A New Kind of Proof — Group Theory and Symmetry}
-Until now, everything we've seen has been analytic. We've approached the vector cancellation problem by summing components, using trigonometric identities, integrals, and spherical coordinates. Personally, I'm an analysis guy.
+Up to this point, we’ve used sums, trigonometry, and integrals to understand why symmetric vector arrangements cancel out. Personally, I'm an analysis guy. I’ve always been drawn to this kind of analytic proofs — it’s concrete, step-by-step, and satisfying.
+
+But after my last video, someone left a comment suggesting a completely different approach: using \textbf{rotational symmetry}, inspired by \textbf{group theory}.
+
+Now, I’ll be honest — I didn’t have much background in group theory. I didn’t really know how it connected to any of this. He demonstrated the idea beautifully in 2D. And once I saw it, everything clicked.
+
+\begin{quote}
+\textit{Group theory is the mathematical language of symmetry. And I believe this problem — and its solution — is really a beautiful doorway into group theory.}
+\end{quote}
+
+So now, let’s switch gears and see how symmetry leads to balance through the lens of \textbf{group theory.}
+
+Let's start simple with 2D, again!
+
 
 \end{document}
