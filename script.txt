@@ -5,12 +5,19 @@
 \usepackage{lipsum}
 
 \title{Nature Loves Symmetry}
-\author{}
+\author{Sumit Sah}
 \date{}
 
 \begin{document}
 
 \maketitle
+
+\begin{quote}
+\textit{“Philosophy is written in this grand book—I mean the universe—which stands continually open to our gaze. But it cannot be understood unless one first learns to comprehend the language and interpret the characters in which it is written. It is written in the language of mathematics, and its characters are triangles, circles, and other geometrical figures, without which it is humanly impossible to understand a single word of it.”}\\
+\hfill — \textbf{Galileo Galilei}, \textit{Il Saggiatore} (The Assayer), 1623
+\end{quote}
+
+
 \section*{Part 1: Introducing the Problem through Physical Intuition}
 
 Imagine you tie \textbf{two electrons} to the ends of a string—and let go.
@@ -173,9 +180,7 @@ But even before diving into that, I wanted to verify this computationally. So I 
 
 \medskip
 
-Now, let’s move to a more mathematical approach.
-
-We move these group of vectors into the complex plane, where the \(x\)-component corresponds to the real part and the \(y\)-component to the imaginary part.
+Now, We move these group of vectors into the complex plane, where the \(x\)-component corresponds to the real part and the \(y\)-component to the imaginary part.
 
 Thanks to Euler's formula, each vector can be written in exponential form as:
 
@@ -183,17 +188,19 @@ Thanks to Euler's formula, each vector can be written in exponential form as:
 \vec{v}_k = e^{\frac{2\pi i k}{n}} \quad \text{for } k = 0, 1, \dots, n-1
 \]
 
-When we sum all these vectors, we get a geometric series:
+When we take the sum of the exponential, and expand it we get a geometric series:
 
 \[
-\sum_{k=0}^{n-1} e^{\frac{2\pi i k}{n}} = 0
+\sum_{k=0}^{n-1} e^{\frac{2\pi i k}{n}} = 1 + e^\frac{i2\pi}{n} + e^\frac{i4\pi}{n} \cdots + e^\frac{i2(n-1)\pi}{n}= 0
 \]
+which evaluates to 0.
 
 If you're familiar with the concept of \textit{roots of unity}, the result is even more immediate.
 
 \medskip
 
-This same principle can be extended beyond discrete vectors. Indeed, we can prove that the total vector sum is zero for a \textbf{continuous distribution} of vectors arranged symmetrically around a circle—like a charged ring. Visually, we can think of it as composed of infinitely many tiny charge elements \( dQ \). For every \( dQ \), there is a directly opposite element \( dQ' \) whose electric field cancels it out. But can we provide a mathematical, rigorous proof? Yes
+This same principle can be extended beyond discrete vectors. We can prove that the total vector sum is zero for a \textbf{continuous distribution} of vectors—like a charged ring, for example. Visually, we can think of it as composed of infinitely many tiny charge elements \( dQ \). For every \( dQ \), there is a directly opposite element \( dQ' \) whose electric field cancels it out. 
+Mathematically,
 
 As \( n \to \infty \), the discrete sum
 
@@ -339,7 +346,7 @@ This is at the heart of the Thomson problem in physics that we talked about:
 
 where angle between any two vectors is about \(109.5^\circ\)— but this configuration that can never be produced by our uniform double sum formula.
 
-Even if you try writing a program to generate coordinates using that method, it won’t match.
+You try writing a program to generate coordinates using that method, it won’t match.
 Yet, you can still verify visually that the vector sum of Platonic solids is zero:
 
 \begin{itemize}
@@ -391,7 +398,7 @@ Evaluating the integral gives:
 \sin\phi\sin\theta \\
 \cos\phi
 \end{pmatrix}
-d\theta \, d\phi
+\sin\phi d\theta \, d\phi
 =
 \begin{pmatrix}
 0 \\
@@ -410,11 +417,11 @@ Once we’ve proven that in 3D, the natural question arises:
 \textit{Can we extend this to 4D? 5D? All the way to \( n \) dimensions?}
 \end{quote}
 
-Surprisingly, yes. And here’s how.
+Surprisingly, yes. Mathematicians abstract the 2D circle and 3D sphere to higher dimensions: the unit \emph{hypersphere}
 
 \medskip
 
-In four dimensions, points on the surface of a 4D hypersphere (a 3-sphere) can be represented using three angles: \(\phi_1, \phi_2, \theta\). A typical parametrization looks like:
+In four dimensions, points on the surface of a 4D hypersphere can be represented using three angles: \(\phi_1, \phi_2, \theta\). A typical parametrization looks like:
 
 \[
 \vec{v}(\phi_1, \phi_2, \theta) =
@@ -429,38 +436,38 @@ In four dimensions, points on the surface of a 4D hypersphere (a 3-sphere) can b
 To simulate a symmetric distribution in 4D, we construct a triple sum:
 
 \[
-\sum_{r=0}^{l} \sum_{p=0}^{m} \sum_{k=0}^{n-1} \vec{v}\left( \frac{\pi r}{l}, \frac{\pi p}{m}, \frac{2\pi k}{n} \right)
+\sum_{p_1=0}^{m_1} \sum_{p_2=0}^{m_2} \sum_{k=0}^{n-1} \vec{v}\left( \frac{\pi p_1}{m_1}, \frac{\pi p_2}{m_2}, \frac{2\pi k}{n} \right)
 \]
 
-Just like in the 3D case, we can fix the outermost angle (say, \(\phi_1 = \frac{\pi r}{l}\)) and factor out the corresponding scalar terms. The remaining double sum over \(\phi_2\) and \(\theta\) looks exactly like the 3D symmetric case, where we already proved the vector sum is zero.
+Just like in the 3D case, we can fix the outermost angle (say, \(\phi_1 = \frac{\pi p_1}{m_1}\)) and factor out the corresponding scalar terms. The remaining double sum over \(\phi_2\) and \(\theta\) looks exactly like the 3D symmetric case, where we already proved the vector sum is zero.
 
 So the full 4D sum becomes:
 
 \[
-\sum_{r=0}^{l}
-\sin\left( \frac{\pi r}{l} \right)
+\sum_{p_1=0}^{m_1}
+\sin\left( \frac{\pi p_1}{m_1} \right)
 \cdot
-\left[
-\sum_{p=0}^{m}
+\left(
+\sum_{p_2=0}^{m_2}
 \sum_{k=0}^{n-1}
 \begin{pmatrix}
-\sin\left(\frac{\pi p}{m}\right)\cos\left(\frac{2\pi k}{n}\right) \\
-\sin\left(\frac{\pi p}{m}\right)\sin\left(\frac{2\pi k}{n}\right) \\
-\cos\left(\frac{\pi p}{m}\right)
+\sin\left(\frac{\pi p_2}{m_2}\right)\cos\left(\frac{2\pi k}{n}\right) \\
+\sin\left(\frac{\pi p_2}{m_2}\right)\sin\left(\frac{2\pi k}{n}\right) \\
+\cos\left(\frac{\pi p_2}{m_2}\right)
 \end{pmatrix}
-\right]
+\right)
 = \vec{0}
 \]
 
-Since the entire inner double sum evaluates to \(\vec{0}\) (from the 3D result), multiplying it by any scalar—including \(\sin\left( \frac{\pi r}{l} \right)\)—still gives zero. Therefore:
+Since the entire inner double sum evaluates to \(\vec{0}\) (from the 3D result), multiplying it by any scalar—including \(\sin\left( \frac{\pi p_1}{m_1} \right)\)—still gives zero. Therefore:
 
 \[
-\sum_{r=0}^{l}
-\sin\left( \frac{\pi r}{l} \right)
+\sum_{p_1=0}^{m_1}
+\sin\left( \frac{\pi p_1}{m_1} \right)
 \cdot \vec{0} = \vec{0}
 \]
 
-And as we take the limit \( l, m, n \to \infty \), the triple sum over the 4D hypersphere becomes a triple integral over its angular parameters:
+And as we take the limit \( m_1, m_2, n \to \infty \), the triple sum over the 4D hypersphere becomes a triple integral over its angular parameters:
 
 \[
 \int_0^\pi \int_0^\pi \int_0^{2\pi}
@@ -479,14 +486,14 @@ In \(n\)-dimensional space, we use \(n-1\) angles \(\phi_1, \phi_2, \ldots, \phi
 We create an \((n-1)\)-nested sum to represent the sum over all directions on the unit hypersphere:
 
 \[
-\sum_{p_1=0}^{m_1} \sum_{p_2=0}^{m_2} \cdots \sum_{p_{n-2}=0}^{m_{n-2}} \sum_{k=0}^{n-1} \vec{v}(p_1, \ldots, p_{n-2}, k)
+\sum_{p_1=0}^{m_1} \sum_{p_2=0}^{m_2} \cdots \sum_{p_{n-2}=0}^{m_{n-2}} \sum_{k=0}^{n-1} \vec{v}\left(\frac{\pi p_1}{m_1}, \ldots, \frac{\pi p_{n-2}}{m_{n-2}}, k\right)
 \]
 
 Where the vector \(\vec{v}\) has coordinates:
 
 \[
 \begin{aligned}
-\vec{v} &= \left(
+\vec{v}(\phi_1, \phi_2, \cdots, \phi_{n-2}, \theta) &= \left(
 \begin{array}{c}
 \sin(\phi_1) \sin(\phi_2) \cdots \sin(\phi_{n-2}) \cos(\theta) \\
 \sin(\phi_1) \sin(\phi_2) \cdots \sin(\phi_{n-2}) \sin(\theta) \\
@@ -500,7 +507,7 @@ Where the vector \(\vec{v}\) has coordinates:
 
 Each angle is discretized as:
 \[
-\phi_j = \frac{\pi p_j}{m_j}, \quad \theta = \frac{2\pi k}{n}
+\phi_j = \frac{\pi p_j}{m_j}, \quad j = 1 , 2, ..., n-2, \quad \theta = \frac{2\pi k}{n}
 \]
 
 Each time, we factor out the outermost sum—fixing one angle—and apply the result from the previous dimension. This gives us a kind of mathematical induction over dimensions:
@@ -547,5 +554,48 @@ So now, let’s switch gears and see how symmetry leads to balance through the l
 
 Let's start simple with 2D, again!
 
+We already saw this vector sum written in exponential form:
+
+\[
+S = \sum_{k=0}^{n-1} e^{2\pi i k/n}
+\]
+
+Let’s call this sum \( S \). Expanding it gives:
+
+\[
+S = 1 + e^{2\pi i / n} + e^{4\pi i / n} + \cdots + e^{2\pi i (n-1)/n}
+\]
+
+Each term here represents a vector on the unit circle, equally spaced by angle \( \frac{2\pi}{n} \).
+
+Now let’s multiply both sides by \( e^{2\pi i / n} \). We’ll soon see why:
+
+\[
+e^{2\pi i / n} \cdot S = e^{2\pi i / n} + e^{4\pi i / n} + \cdots + e^{2\pi i} = 1
+\]
+
+So this new sum is exactly the same as \( S \), just cyclically shifted. That means:
+
+\[
+e^{2\pi i / n} \cdot S = S
+\]
+
+Geometrically, what we did was rotate each vector by \( \frac{2\pi}{n} \). And yet, the overall vector sum didn’t change.
+
+Now here's the key point:
+
+\[
+(e^{2\pi i / n} - 1) \cdot S = 0
+\]
+
+For \( n > 1 \), we know \( e^{2\pi i / n} \neq 1 \), so the only solution is:
+
+\[
+S = 0
+\]
+
+In more group-theory language, this rotation we applied is called a \textbf{group action} — and our vector sum \( S \) is \textbf{invariant} under that action.
+
+And not just that one! We could rotate by \( \frac{4\pi}{n} \), \( \frac{6\pi}{n} \), all the way to \( 2\pi \). Each of these rotations is part of a group — and if applying any group action leaves the vector sum unchanged, then the sum must be the zero vector.
 
 \end{document}
