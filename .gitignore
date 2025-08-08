@@ -1,0 +1,37 @@
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pkl
+
+# Manim media outputs
+media/
+videos/
+images/
+partial_movie_files/
+*.mp4
+*.mov
+*.gif
+*.png
+*.jpg
+
+# Temporary files
+.DS_Store
+Thumbs.db
+
+# Virtual environment
+venv/
+env/
+.venv/
+
+# Logs and configs
+*.log
+*.ini
+*.cfg
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# VSCode settings
+.vscode/
