@@ -1,9 +1,0 @@
-# This file is used internally by FFMPEG.
-file 'file:C:/Users/Sumit Sah/Desktop/Manim Projects/some-25/media/videos/animations/1080p60/partial_movie_files/TwoElectronsOnString/3529212410_3562655981_223132457.mp4'
-file 'file:C:/Users/Sumit Sah/Desktop/Manim Projects/some-25/media/videos/animations/1080p60/partial_movie_files/TwoElectronsOnString/3040924799_337856778_1249217276.mp4'
-file 'file:C:/Users/Sumit Sah/Desktop/Manim Projects/some-25/media/videos/animations/1080p60/partial_movie_files/TwoElectronsOnString/3040924799_289764556_1014976476.mp4'
-file 'file:C:/Users/Sumit Sah/Desktop/Manim Projects/some-25/media/videos/animations/1080p60/partial_movie_files/TwoElectronsOnString/3040924799_1798021823_1212355347.mp4'
-file 'file:C:/Users/Sumit Sah/Desktop/Manim Projects/some-25/media/videos/animations/1080p60/partial_movie_files/TwoElectronsOnString/3040924799_1315852423_2954373667.mp4'
-file 'file:C:/Users/Sumit Sah/Desktop/Manim Projects/some-25/media/videos/animations/1080p60/partial_movie_files/TwoElectronsOnString/3040924799_179480076_3945871286.mp4'
-file 'file:C:/Users/Sumit Sah/Desktop/Manim Projects/some-25/media/videos/animations/1080p60/partial_movie_files/TwoElectronsOnString/3040924799_188520855_1337396117.mp4'
-file 'file:C:/Users/Sumit Sah/Desktop/Manim Projects/some-25/media/videos/animations/1080p60/partial_movie_files/TwoElectronsOnString/3040924799_745637884_1739656398.mp4'
