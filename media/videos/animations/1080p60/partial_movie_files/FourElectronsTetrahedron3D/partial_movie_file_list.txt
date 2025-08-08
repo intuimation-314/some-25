@@ -1,0 +1,10 @@
+# This file is used internally by FFMPEG.
+file 'file:C:/Users/Sumit Sah/Desktop/Manim Projects/some-25/media/videos/animations/1080p60/partial_movie_files/FourElectronsTetrahedron3D/1976804181_162173339_223132457.mp4'
+file 'file:C:/Users/Sumit Sah/Desktop/Manim Projects/some-25/media/videos/animations/1080p60/partial_movie_files/FourElectronsTetrahedron3D/1790293035_1628584073_1249217276.mp4'
+file 'file:C:/Users/Sumit Sah/Desktop/Manim Projects/some-25/media/videos/animations/1080p60/partial_movie_files/FourElectronsTetrahedron3D/1790293035_2262417926_1014976476.mp4'
+file 'file:C:/Users/Sumit Sah/Desktop/Manim Projects/some-25/media/videos/animations/1080p60/partial_movie_files/FourElectronsTetrahedron3D/3702782577_813272908_2849018744.mp4'
+file 'file:C:/Users/Sumit Sah/Desktop/Manim Projects/some-25/media/videos/animations/1080p60/partial_movie_files/FourElectronsTetrahedron3D/3055291407_3581552073_3038150569.mp4'
+file 'file:C:/Users/Sumit Sah/Desktop/Manim Projects/some-25/media/videos/animations/1080p60/partial_movie_files/FourElectronsTetrahedron3D/1500385243_4257040593_1114279732.mp4'
+file 'file:C:/Users/Sumit Sah/Desktop/Manim Projects/some-25/media/videos/animations/1080p60/partial_movie_files/FourElectronsTetrahedron3D/2612780819_4268491821_3708457890.mp4'
+file 'file:C:/Users/Sumit Sah/Desktop/Manim Projects/some-25/media/videos/animations/1080p60/partial_movie_files/FourElectronsTetrahedron3D/726746735_1276616478_963345429.mp4'
+file 'file:C:/Users/Sumit Sah/Desktop/Manim Projects/some-25/media/videos/animations/1080p60/partial_movie_files/FourElectronsTetrahedron3D/726746735_2915753478_594974092.mp4'
