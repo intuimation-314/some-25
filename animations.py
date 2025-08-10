@@ -139,7 +139,6 @@ class ElectronsOnString(Scene):
             for k in range(4)
         ]
 
-        self.play(FadeIn(center_dot))
         self.play(*[FadeIn(s) for s in strings],
                   *[FadeIn(e) for e in electrons],
                   *[FadeIn(l) for l in labels],
@@ -160,86 +159,104 @@ class ElectronsOnString(Scene):
         self.play(*map(FadeOut, [*strings, *electrons, *labels, theta_label, theta_arc]))
         self.wait(0.6)
 
-class FourElectronsTetrahedron3D(ThreeDScene):
+class NEqualVectors(Scene):
     def construct(self):
-        # Black background + gradient title
-        self.camera.background_color = BLACK
-        title = Text(
-            "Imagine tying electrons to the end of strings !",
-            gradient=(BLUE, TEAL),
-            font_size=36
-        ).to_edge(UP)
-        self.play(FadeIn(title, shift=0.3*UP))
+        
+        # Set the number of vectors
+        n = 9  # Change this value to the desired number of vectors
 
-        center = ORIGIN
-        R = 2.6
-        center_dot = Dot(center, radius=0.05, color=GRAY_B)
-
-        # Final tetrahedral directions: pairwise dot = -1/3 => angle ≈ 109.47°
-        final_dirs = np.array([
-            [ 1,  1,  1],
-            [ 1, -1, -1],
-            [-1,  1, -1],
-            [-1, -1,  1],
-        ], dtype=float)
-        final_dirs = final_dirs / np.linalg.norm(final_dirs, axis=1)[:, None]
-
-        # Start directions: bias them downward so they "rise" into tetrahedron
-        start_dirs = final_dirs + np.array([0, 0, -3.0])
-        start_dirs = start_dirs / np.linalg.norm(start_dirs, axis=1)[:, None]
-
-        t = ValueTracker(0.0)  # 0 -> start, 1 -> tetrahedron
-
-        def dir_k(k):
-            d = (1 - t.get_value()) * start_dirs[k] + t.get_value() * final_dirs[k]
-            return d / np.linalg.norm(d)
-
-        def pos_k(k):
-            return center + R * dir_k(k)
-
-        # Strings and electrons
-        strings = [
-            always_redraw(lambda k=k: Line3D(center, pos_k(k), color=GRAY_A, stroke_width=2.5))
-            for k in range(4)
+        tex_lines = [
+            "If n equal vectors are lined up",
+            "making an angle of $\\frac{2\pi}{n}$ to each",
+            "other, then the resultant is 0.",
         ]
-        electrons = [
-            always_redraw(lambda k=k: Dot3D(pos_k(k), color=BLUE_E, radius=0.08))
-            for k in range(4)
+        
+        # Create text objects
+        text_group = VGroup(*[Tex(line) for line in tex_lines if line])
+        text_group.arrange(DOWN, aligned_edge=LEFT)
+        text_group.move_to(3*RIGHT + UP)  # Move text group to desired position
+
+        formula = MathTex(r"\sum_{n=0}^{k-1}\vec{v}_k = 0").next_to(text_group, DOWN, buff=0.8)
+        
+        # Create the central object
+        obj = Dot(ORIGIN, color=WHITE)
+        
+        # Angle between the vectors
+        angle = 2 * PI / n
+        
+        # Create and display the vectors
+        vectors = [
+            Arrow(
+                start=obj.get_center(), 
+                end=obj.get_center() + np.array([np.cos(k * angle), np.sin(k * angle), 0]) * 2.5, 
+                buff=0, 
+                color=BLUE,
+                stroke_width=2
+            ) for k in range(n)
         ]
-        labels = [
-            always_redraw(lambda k=k: MathTex(r"e", color=WHITE).scale(0.9).move_to(pos_k(k)))
-            for k in range(4)
-        ]
+        forces = VGroup(*vectors)
 
-        # Optional edges to reveal the tetrahedron (6 edges)
-        def edge(i, j):
-            return always_redraw(lambda i=i, j=j: Line3D(pos_k(i), pos_k(j), color=YELLOW, stroke_width=2))
+        # Create arcs and angle labels between vectors, but only show one at a time
+        arc = Arc(
+            radius=1, 
+            start_angle=0, 
+            angle=angle, 
+            color=YELLOW,
+            stroke_width=2
+        ).move_arc_center_to(obj.get_center())
+        angle_label = MathTex(r"\frac{2\pi}{n}").scale(0.6)
+        angle_label.move_to(arc.point_from_proportion(0.5) + 0.5 * UP)
 
-        edges = [edge(0,1), edge(0,2), edge(0,3), edge(1,2), edge(1,3), edge(2,3)]
+        # Group for initial arc and label
+        arc_angle_group = VGroup(arc, angle_label)
 
-        self.play(FadeIn(center_dot))
-        self.play(*[FadeIn(s) for s in strings],
-                  *[FadeIn(e) for e in electrons],
-                  *[FadeIn(l) for l in labels],
-                  run_time=0.6)
+        self.play(Create(obj))
+        self.play(Create(forces))
+        self.wait(1)
 
-        # Camera setup + start slow rotation
-        self.set_camera_orientation(phi=70*DEGREES, theta=-45*DEGREES, zoom=1.0)
-        self.begin_ambient_camera_rotation(rate=0.15)
+        # Animate each arc and label one by one
+        for k in range(n):
+            new_arc = Arc(
+                radius=1,
+                start_angle=k * angle,
+                angle=angle,
+                color=YELLOW,
+                stroke_width=2
+            ).move_arc_center_to(obj.get_center())
 
-        # Animate into tetrahedral arrangement
-        self.play(t.animate.set_value(1.0), run_time=2.0, rate_func=smooth)
+            new_angle_label = MathTex(r"\frac{2\pi}{n}").scale(0.6)
+            new_angle_label.move_to(new_arc.point_from_proportion(0.5) + 0.5 * UP)
 
-        # Show angle label (tetrahedral angle)
-        theta_label = MathTex(r"\theta \approx 109.5^\circ", color=YELLOW).scale(0.8).next_to(title, DOWN)
-        self.play(FadeIn(theta_label), run_time=0.6)
+            new_arc_angle_group = VGroup(new_arc, new_angle_label)
+        
+            self.play(Transform(arc_angle_group, new_arc_angle_group))
+        
+        self.wait(1)
+        self.play(FadeOut(arc_angle_group))
+        self.play(VGroup(obj,forces).animate.shift(LEFT*3.5))
+        self.wait(1)
+        self.play(Write(text_group))
+        self.wait(1)
+        self.play(Write(formula))
+        self.wait(1)
+        self.play(FadeOut(VGroup(text_group, formula)))
 
-        # Draw edges to make the tetrahedron clear
-        self.play(*[Create(ed) for ed in edges], run_time=0.8)
-        self.wait(1.4)
+        obj1 = Dot().move_to(RIGHT*3)
+        # Shift the vectors to form a closed polygon
+        closed_polygon_vectors = VGroup()
+        for i in range(n):
+            if i == 0:
+                start = obj1.get_center() + np.array([np.cos(i * angle), np.sin(i * angle), 0]) * 2.5
+            else:
+                start = end
+            end = obj1.get_center() + np.array([np.cos((i + 1) * angle), np.sin((i + 1) * angle), 0]) * 2.5
+            closed_polygon_vectors.add(Arrow(start=start, end=end, buff=0, color=BLUE, stroke_width=2))
 
-        # Clean up
-        self.stop_ambient_camera_rotation()
-        self.play(*map(FadeOut, [theta_label, *edges, *strings, *electrons, *labels]))
-        self.wait(0.4)
+        for i in range(n):
+         self.play(Transform(forces[i].copy(), closed_polygon_vectors[i]))
+
+        # Fade out text and elements
+        self.wait(1)
+        self.play(FadeOut(forces), FadeOut(obj))
+        self.wait(1)
 
