@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vector Explorer — Discrete θ/φ + Arrows, Guides, Axes, Rings</title>
+  <style>
+    html, body { height: 100%; margin: 0; background: #000; overflow: hidden; }
+    canvas { display:block; }
+    #ui {
+      position: fixed; left: 16px; bottom: 16px; display: flex; gap: 8px; z-index: 10; align-items: center; flex-wrap: wrap;
+      background:#000a; border:1px solid #2a2a2a; border-radius:12px; padding:10px;
+      color:#fff; font-family: Inter, system-ui, Arial, sans-serif; font-size:13px;
+    }
+    .btn { cursor: pointer; border: 1px solid #2a2a2a; background: #111; color: #fff; padding: 8px 12px; border-radius: 10px; font-size: 13px; opacity: .95; text-decoration: none; }
+    .group { display:flex; align-items:center; gap:8px; background:#111; border:1px solid #2a2a2a; color:#fff; padding:8px 12px; border-radius:10px; }
+    .col { display:flex; flex-direction:column; gap:6px; }
+    .row { display:flex; align-items:center; gap:8px; }
+    .num, select, input[type="range"] { background:#111; color:#fff; border:1px solid #2a2a2a; border-radius:10px; padding:6px 8px; }
+    select { width: 100px; }
+    input[type="range"] { width: 220px; }
+    label { user-select:none; }
+    .value { min-width: 56px; text-align:right; opacity:.9; }
+  </style>
+
+  <!-- Import map to resolve bare specifier "three" (OrbitControls uses it internally) -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "three/examples/jsm/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+</head>
+<body>
+  <div id="ui">
+    <span class="group row">
+      <label>Mode
+        <select id="mode">
+          <option value="2d">2D</option>
+          <option value="3d">3D</option>
+        </select>
+      </label>
+      <button id="reset" class="btn">↺ Reset</button>
+    </span>
+
+    <span class="group row">
+      <span>N (vectors / ring)</span>
+      <input id="n" type="number" class="num" min="1" max="360" step="1" value="8" />
+      <span id="nStep" class="value">Δθ=45°</span>
+    </span>
+
+    <span class="group row" id="mWrap">
+      <span>M (φ divisions)</span>
+      <input id="m" type="number" class="num" min="1" max="180" step="1" value="4" />
+      <span id="mStep" class="value">Δφ=45°</span>
+    </span>
+
+    <span class="group col" id="thetaWrap">
+      <div class="row"><strong>θ</strong> (azimuth) <span id="thetaVal" class="value">0°</span></div>
+      <input id="theta" type="range" min="0" max="360" step="45" value="0" />
+    </span>
+
+    <span class="group col" id="phiWrap">
+      <div class="row"><strong>φ</strong> (polar) <span id="phiVal" class="value">90°</span></div>
+      <input id="phi" type="range" min="0" max="180" step="45" value="90" />
+    </span>
+
+    <span class="group row">
+      <label><input id="showAll" type="checkbox" checked/> show all vectors</label>
+      <label><input id="showGuides" type="checkbox" checked/> guides (circle/sphere)</label>
+      <label><input id="showAxes" type="checkbox" checked/> axes</label>
+      <label><input id="showRings" type="checkbox"/> rings (stacked φ latitudes)</label>
+      <label><input id="showRingSum" type="checkbox"/> ring sum</label>
+      <label><input id="showRingVectors" type="checkbox"/> ring vectors (current φ)</label>
+    </span>
+
+    <span class="group row">
+      <strong>Autoplay</strong>
+      <button id="thetaPlay" class="btn">▶ θ</button>
+      <button id="phiPlay" class="btn">▶ φ</button>
+      <label><input id="showRingProj" type="checkbox"/> ring projections (XY)</label>
+      <label><input id="showProjVec" type="checkbox" checked/> show projected yellow</label>
+      <label><input id="keepTrail" type="checkbox"/> keep trail</label>
+      <label><input id="keepProjTrail" type="checkbox"/> keep projection trail</label>
+      <button id="clearTrail" class="btn">Clear trail</button>
+      <button id="sweepPreset" class="btn">Sweep preset</button>
+    </span>
+
+    <span class="group row">
+      <strong>Recording</strong>
+      <button id="recStart" class="btn">● Start</button>
+      <button id="recStop" class="btn" disabled>■ Stop & Download</button>
+      <a id="dlLast" class="btn" href="#" download style="display:none">⬇ Last</a>
+    </span>
+  </div>
+
+  <canvas id="c"></canvas>
+
+  <script type="module">
+    // Use bare specifiers with the import map above
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+
+    // ===== Scene =====
+    const canvas = document.getElementById('c');
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setSize(window.innerWidth, window.innerHeight);
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x000000);
+
+    const camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 0.1, 200);
+    camera.position.set(0, 0, 6);
+
+    const orbit = new OrbitControls(camera, renderer.domElement);
+    orbit.enableDamping = true; orbit.dampingFactor = 0.08; orbit.target.set(0,0,0);
+
+    scene.add(new THREE.AmbientLight(0xffffff, 0.95));
+
+    window.addEventListener('resize', ()=>{
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      camera.aspect = window.innerWidth/window.innerHeight;
+      camera.updateProjectionMatrix();
+    });
+
+    // ===== UI =====
+    const $ = id => document.getElementById(id);
+    const ui = {
+      mode: $('mode'), reset: $('reset'),
+      n: $('n'), nStep: $('nStep'),
+      m: $('m'), mWrap: $('mWrap'), mStep: $('mStep'),
+      theta: $('theta'), thetaVal: $('thetaVal'), thetaWrap: $('thetaWrap'),
+      phi: $('phi'), phiVal: $('phiVal'), phiWrap: $('phiWrap'),
+      showAll: $('showAll'), showGuides: $('showGuides'), showAxes: $('showAxes'),
+      showRings: $('showRings'), showRingSum: $('showRingSum'),
+      showRingVectors: $('showRingVectors'),
+      thetaPlay: $('thetaPlay'), phiPlay: $('phiPlay'),
+      showRingProj: $('showRingProj'),
+      showProjVec: $('showProjVec'), keepProjTrail: $('keepProjTrail'),
+      keepTrail: $('keepTrail'), clearTrail: $('clearTrail'), sweepPreset: $('sweepPreset'),
+      recStart: $('recStart'), recStop: $('recStop'), dlLast: $('dlLast')
+    };
+
+    const state = { mode:'2d', n:8, m:4, thetaDeg:0, phiDeg:90, showAll:true, showGuides:true, showAxes:true, showRings:false, showRingSum:false, showRingVectors:false, showRingProj:false, showProjVec:true, keepTrail:false, keepProjTrail:false };
+    let thetaPlaying = false, phiPlaying = false;
+
+    // ===== Helpers =====
+    function deg2rad(d){ return d * Math.PI / 180; }
+    const R = 2.2; // radius and arrow length
+
+    function quantizeAngles(){
+      const dTheta = 360 / Math.max(1, state.n);
+      const dPhi = 180 / Math.max(1, state.m);
+      const qTheta = Math.round(state.thetaDeg / dTheta) * dTheta;
+      const qPhi   = Math.round(state.phiDeg   / dPhi)   * dPhi;
+      state.thetaDeg = ((qTheta % 360) + 360) % 360;
+      state.phiDeg   = Math.min(180, Math.max(0, qPhi));
+      ui.theta.step = dTheta; ui.theta.value = state.thetaDeg;
+      ui.phi.step   = dPhi;   ui.phi.value   = state.phiDeg;
+      ui.nStep.textContent = `Δθ=${dTheta.toFixed(0)}°`;
+      ui.mStep.textContent = `Δφ=${dPhi.toFixed(0)}°`;
+    }
+
+    function disposeObject(obj){
+      obj.traverse(o=>{
+        if (o.geometry) o.geometry.dispose();
+        if (o.material) {
+          if (Array.isArray(o.material)) o.material.forEach(m=>m.dispose()); else if (o.material.dispose) o.material.dispose();
+        }
+      });
+    }
+
+    function clearGroup(g){ g.children.forEach(c=>disposeObject(c)); g.clear(); }
+
+    // ===== Guides: axes + circle/sphere =====
+    const guides = new THREE.Group(); scene.add(guides);
+    const axes = new THREE.Group(); guides.add(axes);
+    const guidesGeo = new THREE.Group(); guides.add(guidesGeo);
+
+    function buildAxes(){
+      clearGroup(axes);
+      const makeAxis = (dir, color)=>{
+        const mat = new THREE.LineBasicMaterial({ color });
+        const geom = new THREE.BufferGeometry().setFromPoints([ new THREE.Vector3().copy(dir).multiplyScalar(-R*1.3), new THREE.Vector3().copy(dir).multiplyScalar(R*1.3) ]);
+        return new THREE.Line(geom, mat);
+      };
+      axes.add(makeAxis(new THREE.Vector3(1,0,0), 0xff5555)); // X red
+      axes.add(makeAxis(new THREE.Vector3(0,1,0), 0x55ff55)); // Y green
+      axes.add(makeAxis(new THREE.Vector3(0,0,1), 0x5590ff)); // Z blue
+    }
+
+    function buildCircle(){
+      const pts = []; const segs = 256;
+      for (let i=0;i<segs;i++){ const t = 2*Math.PI*(i/segs); pts.push(new THREE.Vector3(R*Math.cos(t), R*Math.sin(t), 0)); }
+      return new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(pts), new THREE.LineBasicMaterial({ color: 0x333333 }));
+    }
+
+    function buildSphere(){
+      const g = new THREE.Group();
+      g.add(new THREE.Mesh(new THREE.SphereGeometry(R, 64, 64), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent:true, opacity: 0.06, depthWrite:false })));
+      const mat = new THREE.LineBasicMaterial({ color: 0x333333, transparent:true, opacity: 0.9 });
+      // latitudes
+      for (let lat=-75; lat<=75; lat+=15){
+        const phi = THREE.MathUtils.degToRad(lat); const z = R*Math.sin(phi); const r = R*Math.cos(phi);
+        const pts = []; const segs = 192; for (let i=0;i<=segs;i++){ const t=2*Math.PI*(i/segs); pts.push(new THREE.Vector3(r*Math.cos(t), r*Math.sin(t), z)); }
+        g.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), mat.clone()));
+      }
+      // longitudes
+      for (let lon=0; lon<360; lon+=15){
+        const lam = THREE.MathUtils.degToRad(lon); const pts=[]; const segs=192;
+        for (let i=0;i<=segs;i++){
+          const t=2*Math.PI*(i/segs); const x=R*Math.cos(t), z=R*Math.sin(t); const xr=x*Math.cos(lam), yr=x*Math.sin(lam); pts.push(new THREE.Vector3(xr, yr, z));
+        }
+        g.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), mat.clone()));
+      }
+      return g;
+    }
+
+    const circleGuide = buildCircle();
+    const sphereGuide = buildSphere();
+    guidesGeo.add(circleGuide); guidesGeo.add(sphereGuide);
+
+    // ===== 3D Rings Visualization =====
+    const ringsGroup = new THREE.Group(); scene.add(ringsGroup);
+    let ringSumArrow = null;
+
+    function makeRingCircle(phiRad, color=0x8a2be2){
+      const r = R*Math.sin(phiRad);
+      const z = R*Math.cos(phiRad);
+      const segs = 256; const pts = [];
+      for (let i=0;i<segs;i++){ const t=2*Math.PI*(i/segs); pts.push(new THREE.Vector3(r*Math.cos(t), r*Math.sin(t), z)); }
+      return new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(pts), new THREE.LineBasicMaterial({ color, transparent:true, opacity:0.85 }));
+    }
+
+    function rebuildRings(){
+      clearGroup(ringsGroup);
+      if (state.mode!=='3d' || !state.showRings) return;
+      const dPhi = 180/Math.max(1,state.m);
+      for (let p=1;p<=state.m-1;p++){
+        const phiDeg=p*dPhi; const phi=deg2rad(phiDeg);
+        const active=Math.abs(phiDeg-state.phiDeg)<1e-6; const col=active?0xff66ff:0x8a2be2;
+        ringsGroup.add(makeRingCircle(phi,col));
+      }
+    }
+
+    function updateRingSum(){
+      if (ringSumArrow){ scene.remove(ringSumArrow); disposeObject(ringSumArrow); ringSumArrow=null; }
+      if (state.mode!=='3d' || !state.showRingSum) return;
+      const n=Math.max(1,state.n); const thetaStep=2*Math.PI/n; const phi=deg2rad(state.phiDeg); const sum=new THREE.Vector3();
+      for(let k=0;k<n;k++){
+        const th=k*thetaStep;
+        sum.x += Math.sin(phi)*Math.cos(th);
+        sum.y += Math.sin(phi)*Math.sin(th);
+        sum.z += Math.cos(phi);
+      }
+      const avg=sum.clone().multiplyScalar(1/n); const len=avg.length();
+      const dir=len>0?avg.clone().normalize():new THREE.Vector3(0,0,1); const scaledLen=R*len; // near 0
+      ringSumArrow=new THREE.ArrowHelper(dir,new THREE.Vector3(0,0,0),scaledLen,0xffff66,0.18*R,0.08*R);
+      scene.add(ringSumArrow);
+    }
+
+    // ===== Vectors (field + highlighted + sliding line) =====
+    const fieldGroup = new THREE.Group(); scene.add(fieldGroup);
+    const faintColor = 0x00ffff;      // cyan
+    const highlightColor = 0xffe26d;  // warm highlight
+
+    function createArrow(dir, color=faintColor){
+      const len = R; const headLen = 0.16*R; const headWidth = 0.08*R;
+      return new THREE.ArrowHelper(dir.clone().normalize(), new THREE.Vector3(0,0,0), len, color, headLen, headWidth);
+    }
+
+    // Like createArrow, but lets us set a custom length (used for XY projections so length scales with sin φ)
+    function createArrowWithLength(dir, length, color=faintColor){
+      const headLen = 0.16*R; const headWidth = 0.08*R;
+      return new THREE.ArrowHelper(dir.clone().normalize(), new THREE.Vector3(0,0,0), length, color, headLen, headWidth);
+    }
+
+    let highlightArrow = createArrow(new THREE.Vector3(1,0,0), highlightColor);
+    scene.add(highlightArrow);
+
+    const cursorMat = new THREE.LineBasicMaterial({ color: 0xffffff, transparent:true, opacity: 0.85 });
+    let cursorLine = new THREE.Line(new THREE.BufferGeometry(), cursorMat);
+    scene.add(cursorLine);
+
+    // ===== Trails =====
+    const trailGroup = new THREE.Group(); scene.add(trailGroup);
+    const projTrailGroup = new THREE.Group(); scene.add(projTrailGroup);
+    const trailColor = 0x4cc9f0; // blue
+    let lastHighlightDir = null;
+    let lastProjDir = null; // XY vector
+    function clearTrail(){ clearGroup(trailGroup); clearGroup(projTrailGroup); lastHighlightDir = null; lastProjDir = null; }
+
+    // ===== Projections (XY plane, current φ) =====
+    const ringProjGroup = new THREE.Group(); scene.add(ringProjGroup);
+    const projHighlightGroup = new THREE.Group(); scene.add(projHighlightGroup);
+    const ringProjColor = 0xff66aa;
+
+    function rebuildRingProjections(){
+      clearGroup(ringProjGroup);
+      if (!state.showRingProj || state.mode!=='3d') return;
+      const dTheta = 360/Math.max(1,state.n);
+      const ph = deg2rad(state.phiDeg);
+      const rlen = Math.sin(ph); // projection length factor
+      if (rlen < 1e-6) return; // nothing to show at the poles
+      for (let k=0;k<state.n;k++){
+        const th = deg2rad(k*dTheta);
+        const dirXY = new THREE.Vector3(Math.cos(th), Math.sin(th), 0); // direction on XY
+        ringProjGroup.add(createArrowWithLength(dirXY, R * rlen, ringProjColor));
+      }
+    }
+
+    function updateProjectedHighlight(dir){
+      clearGroup(projHighlightGroup);
+      if (!state.showProjVec || state.mode!=='3d') return;
+      const xy = new THREE.Vector3(dir.x, dir.y, 0);
+      const rlen = xy.length();
+      if (rlen < 1e-6) return;
+      // live projected yellow
+      projHighlightGroup.add(createArrowWithLength(xy.clone().normalize(), R * rlen, 0xffe26d));
+      // trail of projections
+      if (state.keepProjTrail && lastProjDir){
+        const prevLen = lastProjDir.length();
+        if (prevLen >= 1e-6) projTrailGroup.add(createArrowWithLength(lastProjDir.clone().normalize(), R * prevLen, trailColor));
+      }
+      lastProjDir = xy.clone();
+    }
+
+    // ===== Ring vectors (current φ) =====
+    const ringVectorsGroup = new THREE.Group(); scene.add(ringVectorsGroup);
+    const ringVecColor = 0x66ffd1;
+    function rebuildRingVectors(){
+      clearGroup(ringVectorsGroup);
+      if (!state.showRingVectors) return;
+      const dTheta = 360/Math.max(1,state.n);
+      const ph = state.mode==='2d' ? Math.PI/2 : deg2rad(state.phiDeg);
+      for (let k=0;k<state.n;k++){
+        const th = deg2rad(k*dTheta);
+        const dir = new THREE.Vector3(Math.sin(ph)*Math.cos(th), Math.sin(ph)*Math.sin(th), Math.cos(ph));
+        ringVectorsGroup.add(createArrow(dir, ringVecColor));
+      }
+    }
+
+    function rebuildField(){
+      clearGroup(fieldGroup);
+      if (!state.showAll) return;
+      if (state.mode === '2d'){
+        const dTheta = 360/Math.max(1,state.n);
+        for (let k=0;k<state.n;k++){
+          const th = deg2rad(k*dTheta);
+          const dir = new THREE.Vector3(Math.cos(th), Math.sin(th), 0);
+          fieldGroup.add(createArrow(dir, faintColor));
+        }
+      } else {
+        const dTheta = 360/Math.max(1,state.n);
+        const dPhi = 180/Math.max(1,state.m);
+        for (let p=0;p<=state.m;p++){
+          const ph = deg2rad(p*dPhi);
+          for (let k=0;k<state.n;k++){
+            const th = deg2rad(k*dTheta);
+            const dir = new THREE.Vector3(Math.sin(ph)*Math.cos(th), Math.sin(ph)*Math.sin(th), Math.cos(ph));
+            fieldGroup.add(createArrow(dir, faintColor));
+          }
+        }
+      }
+    }
+
+    function updateGuides(){
+      axes.visible = state.showAxes;
+      guidesGeo.visible = state.showGuides;
+      circleGuide.visible = (state.mode==='2d');
+      sphereGuide.visible = (state.mode==='3d');
+      ringsGroup.visible = state.showRings && state.mode==='3d';
+      ringProjGroup.visible = state.showRingProj && state.mode==='3d';
+      projHighlightGroup.visible = state.showProjVec && state.mode==='3d';
+      projTrailGroup.visible = state.keepProjTrail && state.mode==='3d';
+      ringVectorsGroup.visible = state.showRingVectors; // available in both 2D and 3D
+      // blue 3D trail for the main vector
+      trailGroup.visible = state.keepTrail;
+    }
+
+    function updateHighlighted(){
+      const th = deg2rad(state.thetaDeg);
+      const ph = state.mode==='2d' ? Math.PI/2 : deg2rad(state.phiDeg);
+      const dir = new THREE.Vector3(Math.sin(ph)*Math.cos(th), Math.sin(ph)*Math.sin(th), Math.cos(ph)).normalize();
+
+      // leave a copy of the previous yellow vector in blue (trail)
+      if (state.keepTrail && lastHighlightDir){
+        trailGroup.add(createArrow(lastHighlightDir.clone(), trailColor));
+      }
+      lastHighlightDir = dir.clone();
+
+      scene.remove(highlightArrow); disposeObject(highlightArrow);
+      highlightArrow = createArrow(dir, highlightColor);
+      scene.add(highlightArrow);
+
+      const end = dir.clone().multiplyScalar(R);
+      cursorLine.geometry.dispose();
+      cursorLine.geometry = new THREE.BufferGeometry().setFromPoints([ new THREE.Vector3(0,0,0), end ]);
+
+      // keep the projection in sync
+      updateProjectedHighlight(dir);
+    }
+
+    function updateAll(){
+      quantizeAngles();
+      ui.thetaVal.textContent = `${state.thetaDeg.toFixed(0)}°`;
+      ui.phiVal.textContent = `${state.phiDeg.toFixed(0)}°`;
+      ui.phiWrap.style.display = state.mode==='3d' ? 'flex' : 'none';
+      ui.mWrap.style.display  = state.mode==='3d' ? 'flex' : 'none';
+      updateGuides();
+      rebuildField();
+      rebuildRings();
+      updateRingSum();
+      rebuildRingVectors();
+      rebuildRingProjections();
+      updateHighlighted();
+    }
+
+    // Initial render
+    buildAxes();
+    updateAll();
+
+    // ===== Animate =====
+    const clock = new THREE.Clock();
+    let autoplayAccum = 0;
+    const STEP_INTERVAL = 0.4; // seconds between steps
+
+    function advanceThetaStep(){
+      const dTheta = 360/Math.max(1,state.n);
+      ui.theta.value = ( (parseFloat(ui.theta.value)||0) + dTheta ) % 360;
+      syncFromUI();
+    }
+    function advancePhiStep(){
+      const dPhi = 180/Math.max(1,state.m);
+      ui.phi.value = Math.min(180, (parseFloat(ui.phi.value)||0) + dPhi);
+      if (ui.phi.value >= 180) ui.phi.value = 0; // wrap
+      syncFromUI();
+    }
+
+    function animate(){
+      requestAnimationFrame(animate);
+      const dt = Math.min(clock.getDelta(), 0.033);
+      autoplayAccum += dt;
+      if ((thetaPlaying || phiPlaying) && autoplayAccum >= STEP_INTERVAL){
+        autoplayAccum = 0;
+        if (thetaPlaying) advanceThetaStep();
+        if (phiPlaying) advancePhiStep();
+      }
+      orbit.update();
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    // ===== Wire UI =====
+    function syncFromUI(){
+      state.mode = ui.mode.value;
+      state.n = Math.max(1, parseInt(ui.n.value||state.n,10));
+      state.m = Math.max(1, parseInt(ui.m.value||state.m,10));
+      state.thetaDeg = parseFloat(ui.theta.value);
+      state.phiDeg = parseFloat(ui.phi.value);
+      state.showAll = ui.showAll.checked;
+      state.showGuides = ui.showGuides.checked;
+      state.showAxes = ui.showAxes.checked;
+      state.showRings = ui.showRings.checked;
+      state.showRingSum = ui.showRingSum.checked;
+      state.showRingVectors = ui.showRingVectors.checked;
+      state.showRingProj = ui.showRingProj.checked;
+      state.showProjVec = ui.showProjVec.checked;
+      state.keepTrail = ui.keepTrail.checked;
+      state.keepProjTrail = ui.keepProjTrail.checked;
+      updateAll();
+    }
+
+    ['input','change'].forEach(ev=>{
+      ui.mode.addEventListener(ev, syncFromUI);
+      ui.n.addEventListener(ev, syncFromUI);
+      ui.m.addEventListener(ev, syncFromUI);
+      ui.theta.addEventListener(ev, syncFromUI);
+      ui.phi.addEventListener(ev, syncFromUI);
+      ui.showAll.addEventListener(ev, syncFromUI);
+      ui.showGuides.addEventListener(ev, syncFromUI);
+      ui.showAxes.addEventListener(ev, syncFromUI);
+      ui.showRings.addEventListener(ev, syncFromUI);
+      ui.showRingSum.addEventListener(ev, syncFromUI);
+      ui.showRingVectors.addEventListener(ev, syncFromUI);
+      ui.showRingProj.addEventListener(ev, syncFromUI);
+      ui.showProjVec.addEventListener(ev, syncFromUI);
+      ui.keepTrail.addEventListener(ev, syncFromUI);
+      ui.keepProjTrail.addEventListener(ev, syncFromUI);
+    });
+
+    // Buttons (click only) — bind exactly once
+    ui.thetaPlay.addEventListener('click', ()=>{ thetaPlaying = !thetaPlaying; ui.thetaPlay.textContent = thetaPlaying ? '⏸ θ' : '▶ θ'; });
+    ui.phiPlay.addEventListener('click',   ()=>{ phiPlaying   = !phiPlaying;   ui.phiPlay.textContent   = phiPlaying   ? '⏸ φ' : '▶ φ'; });
+    ui.clearTrail.addEventListener('click', ()=>{ clearTrail(); });
+    ui.sweepPreset.addEventListener('click', ()=>{
+      ui.showAll.checked=false; ui.showRingVectors.checked=false; ui.showRings.checked=false; ui.showRingSum.checked=false; ui.showRingProj.checked=true; ui.showProjVec.checked=true; ui.keepTrail.checked=true; ui.keepProjTrail.checked=true; syncFromUI();
+    });
+
+    ui.reset.addEventListener('click', ()=>{
+      ui.mode.value = '2d'; ui.n.value = 8; ui.m.value = 4; ui.theta.value = 0; ui.phi.value = 90;
+      ui.showAll.checked = true; ui.showGuides.checked = true; ui.showAxes.checked = true; ui.showRings.checked = false; ui.showRingSum.checked = false; ui.showRingProj.checked = false; ui.showRingVectors.checked = false; ui.showProjVec.checked = true; ui.keepTrail.checked = false; ui.keepProjTrail.checked = false;
+      thetaPlaying=false; phiPlaying=false; ui.thetaPlay.textContent='▶ θ'; ui.phiPlay.textContent='▶ φ';
+      clearTrail();
+      syncFromUI();
+    });
+
+    // ===== Console tests =====
+    function approx(a,b,eps=1e-3){ return Math.abs(a-b) <= eps; }
+    function currentEnd(){
+      const pos = cursorLine.geometry.getAttribute('position');
+      return new THREE.Vector3(pos.getX(1), pos.getY(1), pos.getZ(1));
+    }
+
+    function runTests(){
+      const results = [];
+      // Test: 2D snapping & endpoint radius
+      ui.mode.value='2d'; ui.n.value=8; ui.theta.value=13; ui.showAll.checked=true; syncFromUI();
+      results.push({ name:'2D θ snapped to 45° grid', pass: (+ui.theta.value % 45)===0, got:+ui.theta.value, expected:'multiple of 45' });
+      let P = currentEnd();
+      results.push({ name:'2D endpoint lies on circle R', pass: approx(P.length(), R, 1e-3), got:+P.length().toFixed(3), expected:R });
+
+      // Test: 3D snapping
+      ui.mode.value='3d'; ui.n.value=5; ui.m.value=3; ui.theta.value=17; ui.phi.value=44; syncFromUI();
+      const dTh = 360/5, dPh = 180/3;
+      const thOK = (+ui.theta.value % dTh)===0; const phOK = (+ui.phi.value % dPh)===0;
+      results.push({ name:'3D θ/φ snapped to grid', pass: thOK && phOK, got:{theta:+ui.theta.value,phi:+ui.phi.value}, expected:{theta:`k*${dTh}`,phi:`k*${dPh}`}});
+
+      // Test: guides visibility switch
+      ui.mode.value='2d'; syncFromUI(); const vis2d = (circleGuide.visible && !sphereGuide.visible);
+      ui.mode.value='3d'; syncFromUI(); const vis3d = (!circleGuide.visible && sphereGuide.visible);
+      results.push({ name:'Guides switch (circle/sphere)', pass: vis2d && vis3d, got:{vis2d,vis3d}, expected:{vis2d:true, vis3d:true}});
+
+      console.table(results);
+      const allPass = results.every(r=>r.pass);
+      if (!allPass) console.warn('Some tests failed.'); else console.log('All tests passed.');
+
+      // === Additional tests for ring visualization ===
+      const results2 = [];
+      ui.mode.value='3d'; ui.n.value=8; ui.m.value=6; ui.showRings.checked=true; ui.showRingSum.checked=true; ui.theta.value=0; ui.phi.value=60; syncFromUI();
+      const ringsCount = ringsGroup.children.length;
+      results2.push({ name:'Rings count = M-1 (exclude poles)', pass: ringsCount === (state.m-1), got:ringsCount, expected: state.m-1 });
+      // Here we check x,y ~ 0 for the average of a full ring
+      const n2=state.n; const phi2=deg2rad(state.phiDeg); let sx=0,sy=0,sz=0; for(let k=0;k<n2;k++){ const th=2*Math.PI*k/n2; sx+=Math.sin(phi2)*Math.cos(th); sy+=Math.sin(phi2)*Math.sin(th); sz+=Math.cos(phi2); }
+      const avgX=Math.abs(sx/n2), avgY=Math.abs(sy/n2);
+      results2.push({ name:'Ring average x,y ≈ 0', pass: avgX<1e-12 && avgY<1e-12, got:{avgX,avgY}, expected:'< 1e-12' });
+      console.table(results2);
+
+      // === Tests for ring vectors ===
+      const results3 = [];
+      ui.mode.value='3d'; ui.n.value=12; ui.m.value=5; ui.showRingVectors.checked=true; ui.phi.value=90; syncFromUI();
+      const ringVecCount3d = ringVectorsGroup.children.length;
+      results3.push({ name:'Ring vectors count (3D) = n', pass: ringVecCount3d === 12, got:ringVecCount3d, expected:12 });
+      ui.mode.value='2d'; ui.n.value=10; ui.showRingVectors.checked=true; syncFromUI();
+      const ringVecCount2d = ringVectorsGroup.children.length;
+      results3.push({ name:'Ring vectors count (2D) = n', pass: ringVecCount2d === 10, got:ringVecCount2d, expected:10 });
+      console.table(results3);
+
+      // === Autoplay step tests (logic only) ===
+      const results4 = [];
+      ui.mode.value='3d'; ui.n.value=8; ui.m.value=6; ui.theta.value=0; ui.phi.value=0; syncFromUI();
+      const beforeTh = +ui.theta.value; const beforePh = +ui.phi.value;
+      advanceThetaStep(); advancePhiStep();
+      const afterTh = +ui.theta.value; const afterPh = +ui.phi.value;
+      results4.push({ name:'advanceThetaStep adds Δθ', pass: (afterTh - beforeTh + 360)%360 === 45, got:{beforeTh, afterTh}, expected:'+45 mod 360' });
+      results4.push({ name:'advancePhiStep adds Δφ', pass: (afterPh - beforePh + 180)%180 === 30, got:{beforePh, afterPh}, expected:'+30 mod 180' });
+      console.table(results4);
+
+      // === Projection ring tests ===
+      const results5 = [];
+      ui.mode.value='3d'; ui.n.value=8; ui.m.value=6; ui.showRingProj.checked=true; ui.phi.value=0; syncFromUI();
+      results5.push({ name:'Proj @ φ=0 has 0 arrows', pass: ringProjGroup.children.length===0, got:ringProjGroup.children.length, expected:0 });
+      ui.phi.value=90; syncFromUI();
+      results5.push({ name:'Proj @ φ=90 has n arrows', pass: ringProjGroup.children.length===state.n, got:ringProjGroup.children.length, expected:state.n });
+      console.table(results5);
+
+      // === Autoplay click test + trail test ===
+      const results6 = [];
+      const prevThetaPlaying = thetaPlaying; ui.thetaPlay.click(); const toggled = (thetaPlaying !== prevThetaPlaying); ui.thetaPlay.click();
+      results6.push({ name:'θ play button toggles', pass: toggled, got:{before:prevThetaPlaying, after:thetaPlaying}, expected:'state toggles' });
+      ui.sweepPreset.click(); // enable minimal sweep
+      const trailBefore = trailGroup.children.length; advanceThetaStep(); const trailAfter = trailGroup.children.length;
+      results6.push({ name:'Trail grows after a step', pass: trailAfter > trailBefore, got:{trailBefore, trailAfter}, expected:'trailAfter > trailBefore' });
+      console.table(results6);
+
+      // === Projection trail test ===
+      const results7 = [];
+      ui.mode.value='3d'; ui.n.value=8; ui.m.value=6; ui.showRingProj.checked=true; ui.showProjVec.checked=true; ui.keepProjTrail.checked=true; ui.theta.value=0; ui.phi.value=60; syncFromUI();
+      const projTrailBefore = projTrailGroup.children.length; advanceThetaStep(); const projTrailAfter = projTrailGroup.children.length;
+      results7.push({ name:'Projection trail grows after a step', pass: projTrailAfter > projTrailBefore, got:{projTrailBefore, projTrailAfter}, expected:'projTrailAfter > projTrailBefore' });
+      console.table(results7);
+    }
+
+    window.UI_TESTS = { runTests };
+    setTimeout(runTests, 0);
+
+    // ===== Recording (MediaRecorder) =====
+    let mediaRecorder = null; let chunks = []; let lastUrl = null; let lastExt = 'webm';
+    function getSupportedMime(){
+      const candidates = [
+        'video/webm;codecs=vp9',
+        'video/webm;codecs=vp8',
+        'video/webm',
+        'video/mp4;codecs=avc1'
+      ];
+      for (const c of candidates){ if (window.MediaRecorder && MediaRecorder.isTypeSupported(c)) return c; }
+      return '';
+    }
+    ui.recStart.addEventListener('click', ()=>{
+      try{
+        const stream = renderer.domElement.captureStream(60);
+        const mime = getSupportedMime();
+        mediaRecorder = new MediaRecorder(stream, mime ? { mimeType: mime, videoBitsPerSecond: 8_000_000 } : undefined);
+        chunks = [];
+        mediaRecorder.ondataavailable = (e)=>{ if (e.data && e.data.size) chunks.push(e.data); };
+        mediaRecorder.onstop = ()=>{
+          const type = mediaRecorder && mediaRecorder.mimeType ? mediaRecorder.mimeType : 'video/webm';
+          const blob = new Blob(chunks, { type });
+          if (lastUrl) URL.revokeObjectURL(lastUrl);
+          lastUrl = URL.createObjectURL(blob);
+          lastExt = type.includes('mp4') ? 'mp4' : 'webm';
+          const filename = `vector_explorer_${Date.now()}.${lastExt}`;
+          ui.dlLast.href = lastUrl; ui.dlLast.download = filename; ui.dlLast.style.display = 'inline-block';
+          const a = document.createElement('a'); a.href = lastUrl; a.download = filename; document.body.appendChild(a); a.click(); setTimeout(()=>a.remove(), 100);
+        };
+        mediaRecorder.start();
+        ui.recStart.disabled = true; ui.recStop.disabled = false;
+      } catch (e){ console.error('MediaRecorder failed:', e); }
+    });
+    ui.recStop.addEventListener('click', ()=>{
+      if (mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop();
+      ui.recStart.disabled = false; ui.recStop.disabled = true;
+    });
+
+  </script>
+</body>
+</html>
