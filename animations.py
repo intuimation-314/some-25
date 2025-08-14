@@ -3,161 +3,177 @@ import numpy as np
 
 class ElectronsOnString(Scene):
     def construct(self):
-        # Black background + title
-        self.camera.background_color = BLACK
-        title = Text(
-            "Imagine tying electrons to the end of strings !",
-            gradient=(BLUE, TEAL),
-            font_size=36
-        ).to_edge(UP)   
+        # math mode + safe \mathbb usage
+        title = MathTex(
+            r"\mathbb{I}\!\text{ magine tying electrons to the end of strings !}",
+            font_size=42
+        ).to_edge(UP)
+        title.set_color_by_gradient(BLUE, TEAL_E)  # apply gradient safely
 
         self.play(FadeIn(title, shift=0.3*UP))
+        self.wait()
+                # Static text part
+        label = Tex("Number of electrons =", font_size=32)
+        label.next_to(title, DOWN, buff=0.5)
 
-        center = ORIGIN
-        R = 2.6  # string length
-        center_dot = Dot(center, radius=0.05, color=GRAY_B)
+        # Number part
+        number = Tex("2", font_size=32)
+        number.next_to(label, RIGHT)
 
-        # Start angle: electrons both below x-axis
-        sep = ValueTracker(60 * DEGREES)  # small separation
-        base_angle = -90 * DEGREES  # pointing downward
+        self.play(FadeIn(label), Write(number))
+        self.wait(1)
 
-        def pos1():
-            a = base_angle + sep.get_value() / 2
-            return center + R * np.array([np.cos(a), np.sin(a), 0])
+        # Transform numbers only
+        for n in ["3", "4"]:
+            new_number = Tex(n, font_size=32)
+            new_number.move_to(number)  # keep position
+            self.play(Transform(number, new_number))
+            self.wait(1)
+        # center = ORIGIN
+        # R = 2.6  # string length
+        # center_dot = Dot(center, radius=0.05, color=GRAY_B)
 
-        def pos2():
-            a = base_angle - sep.get_value() / 2
-            return center + R * np.array([np.cos(a), np.sin(a), 0])
+        # # Start angle: electrons both below x-axis
+        # sep = ValueTracker(60 * DEGREES)  # small separation
+        # base_angle = -90 * DEGREES  # pointing downward
 
-        # Strings from center to electrons
-        string1 = always_redraw(lambda: Line(center, pos1(), color=GRAY_A, stroke_width=2.5))
-        string2 = always_redraw(lambda: Line(center, pos2(), color=GRAY_A, stroke_width=2.5))
+        # def pos1():
+        #     a = base_angle + sep.get_value() / 2
+        #     return center + R * np.array([np.cos(a), np.sin(a), 0])
 
-        # Electrons
-        e1 = always_redraw(lambda: Dot(pos1(), color=BLUE_E, radius=0.3))
-        e2 = always_redraw(lambda: Dot(pos2(), color=BLUE_E, radius=0.3))
-        minus1 = always_redraw(lambda: MathTex(r"e", color=WHITE).scale(1.1).move_to(pos1()))
-        minus2 = always_redraw(lambda: MathTex(r"e", color=WHITE).scale(1.1).move_to(pos2()))
+        # def pos2():
+        #     a = base_angle - sep.get_value() / 2
+        #     return center + R * np.array([np.cos(a), np.sin(a), 0])
+
+        # # Strings from center to electrons
+        # string1 = always_redraw(lambda: Line(center, pos1(), color=GRAY_A, stroke_width=2.5))
+        # string2 = always_redraw(lambda: Line(center, pos2(), color=GRAY_A, stroke_width=2.5))
+
+        # # Electrons
+        # e1 = always_redraw(lambda: Dot(pos1(), color=BLUE_E, radius=0.3))
+        # e2 = always_redraw(lambda: Dot(pos2(), color=BLUE_E, radius=0.3))
+        # minus1 = always_redraw(lambda: MathTex(r"e", color=WHITE).scale(1.1).move_to(pos1()))
+        # minus2 = always_redraw(lambda: MathTex(r"e", color=WHITE).scale(1.1).move_to(pos2()))
 
 
 
-        # Build scene
-        self.play(FadeIn(center_dot))
-        self.play(FadeIn(string1, string2, e1, e2, minus1, minus2), run_time=0.6)
+        # # Build scene
+        # self.play(FadeIn(center_dot))
+        # self.play(FadeIn(string1, string2, e1, e2, minus1, minus2), run_time=0.6)
 
-        # Let go: swing up to horizontal (theta = 180°)
-        self.play(sep.animate.set_value(180 * DEGREES), run_time=2.0, rate_func=smooth)
+        # # Let go: swing up to horizontal (theta = 180°)
+        # self.play(sep.animate.set_value(180 * DEGREES), run_time=2.0, rate_func=smooth)
 
-                # Angle arc + label
-        theta_arc = always_redraw(
-            lambda: Angle(string1, string2, radius=0.5, color=YELLOW, other_angle=False)
-        )
-        theta_label = always_redraw(
-            lambda: MathTex(r"\theta = 180^\circ", color=YELLOW).scale(0.8).next_to(theta_arc, UP, buff=0.15)
-        )
+        #         # Angle arc + label
+        # theta_arc = always_redraw(
+        #     lambda: Angle(string1, string2, radius=0.5, color=YELLOW, other_angle=False)
+        # )
+        # theta_label = always_redraw(
+        #     lambda: MathTex(r"\theta = 180^\circ", color=YELLOW).scale(0.8).next_to(theta_arc, UP, buff=0.15)
+        # )
 
-        self.play(FadeIn(theta_arc, theta_label), run_time=0.8)
-        self.wait(1.2)
+        # self.play(FadeIn(theta_arc, theta_label), run_time=0.8)
+        # self.wait(1.2)
 
-        self.play(*map(FadeOut, [string1, string2, e1, e2, minus1, minus2, theta_label, theta_arc]))
-        self.wait(0.6)
+        # self.play(*map(FadeOut, [string1, string2, e1, e2, minus1, minus2, theta_label, theta_arc]))
+        # self.wait(0.6)
 
-        #3 electrons scene
-        start_offsets = np.array([-15, 0, 15]) * DEGREES
-        final_offsets = np.array([-120, 0, 120]) * DEGREES
-        spread = ValueTracker(0.0)  # 0 = start, 1 = final
+        # #3 electrons scene
+        # start_offsets = np.array([-15, 0, 15]) * DEGREES
+        # final_offsets = np.array([-120, 0, 120]) * DEGREES
+        # spread = ValueTracker(0.0)  # 0 = start, 1 = final
 
-        def angles():
-            t = spread.get_value()
-            offs = start_offsets * (1 - t) + final_offsets * t
-            return base_angle + offs
+        # def angles():
+        #     t = spread.get_value()
+        #     offs = start_offsets * (1 - t) + final_offsets * t
+        #     return base_angle + offs
 
-        def pos(k):
-            a = angles()[k]
-            return center + R * np.array([np.cos(a), np.sin(a), 0])
+        # def pos(k):
+        #     a = angles()[k]
+        #     return center + R * np.array([np.cos(a), np.sin(a), 0])
 
-        # Strings & electrons
-        strings = [
-            always_redraw(lambda k=k: Line(center, pos(k), color=GRAY_A, stroke_width=2.5))
-            for k in range(3)
-        ]
-        electrons = [
-            always_redraw(lambda k=k: Dot(pos(k), color=BLUE_E, radius=0.3))
-            for k in range(3)
-        ]
-        labels = [
-            always_redraw(lambda k=k: MathTex(r"e", color=WHITE).scale(1.1).move_to(pos(k)))
-            for k in range(3)
-        ]
+        # # Strings & electrons
+        # strings = [
+        #     always_redraw(lambda k=k: Line(center, pos(k), color=GRAY_A, stroke_width=2.5))
+        #     for k in range(3)
+        # ]
+        # electrons = [
+        #     always_redraw(lambda k=k: Dot(pos(k), color=BLUE_E, radius=0.3))
+        #     for k in range(3)
+        # ]
+        # labels = [
+        #     always_redraw(lambda k=k: MathTex(r"e", color=WHITE).scale(1.1).move_to(pos(k)))
+        #     for k in range(3)
+        # ]
 
-        self.play(*[FadeIn(s) for s in strings],
-                  *[FadeIn(e) for e in electrons],
-                  *[FadeIn(l) for l in labels],
-                  run_time=0.6)
+        # self.play(*[FadeIn(s) for s in strings],
+        #           *[FadeIn(e) for e in electrons],
+        #           *[FadeIn(l) for l in labels],
+        #           run_time=0.6)
 
-        # Let go: spread into equilateral triangle (120° apart)
-        self.play(spread.animate.set_value(1.0), run_time=2.0, rate_func=smooth)
+        # # Let go: spread into equilateral triangle (120° apart)
+        # self.play(spread.animate.set_value(1.0), run_time=2.0, rate_func=smooth)
 
-        # Show angle between two adjacent strings
-        theta_arc = always_redraw(
-            lambda: Angle(strings[0], strings[1], radius=0.5, color=YELLOW, other_angle=False)
-        )
-        theta_label = always_redraw(
-            lambda: MathTex(r"\theta = 120^\circ", color=YELLOW).scale(0.8).next_to(theta_arc, UP, buff=0.15)
-        )
+        # # Show angle between two adjacent strings
+        # theta_arc = always_redraw(
+        #     lambda: Angle(strings[0], strings[1], radius=0.5, color=YELLOW, other_angle=False)
+        # )
+        # theta_label = always_redraw(
+        #     lambda: MathTex(r"\theta = 120^\circ", color=YELLOW).scale(0.8).next_to(theta_arc, UP, buff=0.15)
+        # )
 
-        self.play(FadeIn(theta_arc, theta_label), run_time=0.8)
-        self.wait(1.2)
+        # self.play(FadeIn(theta_arc, theta_label), run_time=0.8)
+        # self.wait(1.2)
 
-        self.play(*map(FadeOut, [*strings, *electrons, *labels, theta_label, theta_arc]))
-        self.wait(0.6)
+        # self.play(*map(FadeOut, [*strings, *electrons, *labels, theta_label, theta_arc]))
+        # self.wait(0.6)
 
-        #Four Electrons
-        start_offsets = np.array([-15, -5, 5, 15]) * DEGREES
-        final_offsets = np.array([-135, -45, 45, 135]) * DEGREES  # 90° apart
-        spread = ValueTracker(0.0)
+        # #Four Electrons
+        # start_offsets = np.array([-15, -5, 5, 15]) * DEGREES
+        # final_offsets = np.array([-135, -45, 45, 135]) * DEGREES  # 90° apart
+        # spread = ValueTracker(0.0)
 
-        def angles():
-            t = spread.get_value()
-            offs = start_offsets * (1 - t) + final_offsets * t
-            return base_angle + offs
+        # def angles():
+        #     t = spread.get_value()
+        #     offs = start_offsets * (1 - t) + final_offsets * t
+        #     return base_angle + offs
 
-        def pos(k):
-            a = angles()[k]
-            return center + R * np.array([np.cos(a), np.sin(a), 0])
+        # def pos(k):
+        #     a = angles()[k]
+        #     return center + R * np.array([np.cos(a), np.sin(a), 0])
 
-        strings = [
-            always_redraw(lambda k=k: Line(center, pos(k), color=GRAY_A, stroke_width=2.5))
-            for k in range(4)
-        ]
-        electrons = [
-            always_redraw(lambda k=k: Dot(pos(k), color=BLUE_E, radius=0.3))
-            for k in range(4)
-        ]
-        labels = [
-            always_redraw(lambda k=k: MathTex(r"e", color=WHITE).scale(1.1).move_to(pos(k)))
-            for k in range(4)
-        ]
+        # strings = [
+        #     always_redraw(lambda k=k: Line(center, pos(k), color=GRAY_A, stroke_width=2.5))
+        #     for k in range(4)
+        # ]
+        # electrons = [
+        #     always_redraw(lambda k=k: Dot(pos(k), color=BLUE_E, radius=0.3))
+        #     for k in range(4)
+        # ]
+        # labels = [
+        #     always_redraw(lambda k=k: MathTex(r"e", color=WHITE).scale(1.1).move_to(pos(k)))
+        #     for k in range(4)
+        # ]
 
-        self.play(*[FadeIn(s) for s in strings],
-                  *[FadeIn(e) for e in electrons],
-                  *[FadeIn(l) for l in labels],
-                  run_time=0.6)
+        # self.play(*[FadeIn(s) for s in strings],
+        #           *[FadeIn(e) for e in electrons],
+        #           *[FadeIn(l) for l in labels],
+        #           run_time=0.6)
 
-        self.play(spread.animate.set_value(1.0), run_time=2.0, rate_func=smooth)
+        # self.play(spread.animate.set_value(1.0), run_time=2.0, rate_func=smooth)
 
-        theta_arc = always_redraw(
-            lambda: Angle(strings[0], strings[1], radius=0.5, color=YELLOW, other_angle=False)
-        )
-        theta_label = always_redraw(
-            lambda: MathTex(r"\theta = 90^\circ", color=YELLOW).scale(0.8).next_to(theta_arc, UP, buff=0.15)
-        )
+        # theta_arc = always_redraw(
+        #     lambda: Angle(strings[0], strings[1], radius=0.5, color=YELLOW, other_angle=False)
+        # )
+        # theta_label = always_redraw(
+        #     lambda: MathTex(r"\theta = 90^\circ", color=YELLOW).scale(0.8).next_to(theta_arc, UP, buff=0.15)
+        # )
 
-        self.play(FadeIn(theta_arc, theta_label), run_time=0.8)
-        self.wait(1.2)
+        # self.play(FadeIn(theta_arc, theta_label), run_time=0.8)
+        # self.wait(1.2)
 
-        self.play(*map(FadeOut, [*strings, *electrons, *labels, theta_label, theta_arc]))
-        self.wait(0.6)
+        # self.play(*map(FadeOut, [*strings, *electrons, *labels, theta_label, theta_arc]))
+        # self.wait(0.6)
 
 class NEqualVectors(Scene):
     def construct(self):
@@ -260,3 +276,150 @@ class NEqualVectors(Scene):
         self.play(FadeOut(forces), FadeOut(obj))
         self.wait(1)
 
+
+class GalileoQuote1(Scene):
+    def construct(self):
+        # --- main quote with per-line colors ---
+        quote = VGroup(
+            Tex(
+                r"\textit{``Philosophy is written in this grand book---I mean the universe---which stands continually open to our gaze.}",
+                tex_environment="flushleft",
+                font_size=36,
+            ),
+            Tex(
+                r"\textit{But it cannot be understood unless one first learns to comprehend the language and interpret the characters in which it is written.}",
+                tex_environment="flushleft",
+                font_size=36,
+                color=BLUE,
+            ),
+            Tex(
+                r"\textit{It is written in the language of mathematics, and its characters are triangles, circles, and other geometrical figures,}",
+                tex_environment="flushleft",
+                font_size=36,
+            ), 
+            Tex(
+                r"\textit{without which it is humanly impossible to understand a single word of it.''}",
+                tex_environment="flushleft",
+                font_size=36,
+                color=WHITE,
+            ),
+        ).arrange(DOWN, aligned_edge=LEFT, buff=0.3).to_edge(LEFT).shift(UP*0.5)
+
+        # --- emphasize key words inside the colored lines ---
+        quote[2].set_color_by_tex("mathematics", YELLOW)
+        quote[2].set_color_by_tex("triangles", TEAL)
+        quote[2].set_color_by_tex("circles", BLUE)
+        quote[2].set_color_by_tex("geometrical figures", GREEN)
+
+        # --- author attribution ---
+        author = Tex(
+            r"\textbf{ - Galileo Galilei}, \textit{Il Saggiatore} (The Assayer), 1623",
+            font_size=30,
+            color=WHITE,
+        )
+        author.next_to(quote, DOWN, buff=0.5)
+        author.align_to(quote, RIGHT)
+
+        # --- decorative geometry ---
+        circle = Circle(radius=1.2, color=BLUE_E).set_stroke(width=3, opacity=0.15)
+        tri = RegularPolygon(3, radius=1.1).set_stroke(color=TEAL_E, width=3, opacity=0.15)
+        geo = VGroup(circle, tri).arrange(RIGHT, buff=0.5)
+        geo.move_to(quote.get_center() + 3.0*RIGHT + 0.3*UP)
+        geo.set_z_index(-1)
+
+        # --- animation ---
+        for line in quote:
+            self.play(FadeIn(line), run_time=1.2)
+        self.play(FadeIn(geo, shift=UP*0.2), run_time=0.8)
+        self.play(Write(author), run_time=0.8)
+        self.wait(2)
+
+class SymmetryTemplate(Scene):
+    def construct(self):
+        # Titles
+        title = MathTex(
+            r'\text{``Symmetry is everywhere in nature``}',
+            font_size=48
+        ).set_color_by_gradient(BLUE, GREEN)
+
+        title2 = MathTex(
+            r'\text{``And inspired by nature, we humans design:``}',
+            font_size=48
+        ).set_color_by_gradient(BLUE, GREEN)
+
+        # First title
+        self.play(FadeIn(title))
+        self.play(title.animate.to_edge(UP))
+        self.wait(0.5)
+
+        # First set of captions
+        captions = [
+            (
+                MathTex(r"\mathrm{BF_3\ (Trigonal\ Planar)}", font_size=28),
+                MathTex(r"\mathrm{CH_4\ (Tetrahedral)}", font_size=28)
+            ),
+            (
+                MathTex(r"\mathrm{Charged\ Ring\ (2D)}", font_size=28),
+                MathTex(r"\mathrm{Charged\ Sphere\ (3D)}", font_size=28)
+            ),
+            (
+                MathTex(r"\mathrm{Water\ Droplets}", font_size=28),
+                MathTex(r"\mathrm{Ripples,\ Snowflakes}", font_size=28)
+            )
+        ]
+
+        captions2 = [
+            (
+                MathTex(r"\mathrm{Fan\ Blades}", font_size=28),
+                MathTex(r"\mathrm{Turbines}", font_size=28)
+            ),
+            (
+                MathTex(r"\mathrm{Speaker\ Cones}", font_size=28),
+                MathTex(r"\mathrm{Satellite\ Dishes}", font_size=28)
+            ),
+            (
+                MathTex(r"\mathrm{Domes}", font_size=28),
+                MathTex(r"\mathrm{Arches}", font_size=28)
+            )
+        ]
+
+        # Initialize empty captions for first set
+        bottom_left = MathTex("", font_size=28).to_corner(DL).shift(2*RIGHT)
+        bottom_right = MathTex("", font_size=28).to_corner(DR).shift(2*LEFT)
+        self.add(bottom_left, bottom_right)
+
+        # Play first captions
+        for left_caption, right_caption in captions:
+            left_caption.to_corner(DL).shift(1.5*RIGHT + UP)
+            right_caption.to_corner(DR).shift(1.5*LEFT + UP)
+            self.play(
+                Transform(bottom_left, left_caption),
+                Transform(bottom_right, right_caption)
+            )
+            self.wait(2)
+
+        # Fade out everything from first part
+        self.play(FadeOut(title), FadeOut(bottom_left), FadeOut(bottom_right))
+        self.wait(0.5)
+
+        # Second title
+        self.play(FadeIn(title2))
+        self.play(title2.animate.to_edge(UP))
+        self.wait(0.5)
+
+        # Reset captions for second set
+        bottom_left2 = MathTex("", font_size=28).to_corner(DL).shift(2*RIGHT)
+        bottom_right2 = MathTex("", font_size=28).to_corner(DR).shift(2*LEFT)
+        self.add(bottom_left2, bottom_right2)
+
+        # Play second captions
+        for left_caption, right_caption in captions2:
+            left_caption.to_corner(DL).shift(1.5*RIGHT + UP)
+            right_caption.to_corner(DR).shift(1.5*LEFT + UP)
+            self.play(
+                Transform(bottom_left2, left_caption),
+                Transform(bottom_right2, right_caption)
+            )
+            self.wait(2)
+
+        self.wait(1)
