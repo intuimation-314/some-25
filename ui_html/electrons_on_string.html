@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Electrons on Strings — Clean + Labels, Angles, Recording</title>
+  <style>
+    html, body { height: 100%; margin: 0; background: #000; overflow: hidden; }
+    canvas { display:block; }
+    #controls { position: fixed; right: 16px; bottom: 16px; display: flex; gap: 8px; z-index: 10; flex-wrap: wrap; align-items: center; }
+    .btn { cursor: pointer; border: 1px solid #2a2a2a; background: #111; color: #fff; padding: 8px 12px; border-radius: 10px; font-size: 13px; opacity: .9; text-decoration: none; }
+    .btn:disabled { opacity: .4; cursor: not-allowed; }
+    .toggle { display:flex; gap:6px; align-items:center; color:#ddd; background:#111; border:1px solid #2a2a2a; border-radius:10px; padding:6px 10px; font-size:13px; }
+    .toggle input { accent-color:#4cc9f0; }
+  </style>
+</head>
+<body>
+  <div id="controls">
+    <label class="toggle"><input id="toggleElectrons" type="checkbox" checked /> Electrons</label>
+    <label class="toggle"><input id="toggleStrings"  type="checkbox" checked /> Strings</label>
+    <label class="toggle"><input id="toggleArrows"   type="checkbox" checked /> Vector arrows</label>
+    <button id="recStart" class="btn">● Start Recording</button>
+    <button id="recStop" class="btn" disabled>■ Stop & Download</button>
+    <a id="dlLast" class="btn" href="#" download style="display:none">⬇ Download last recording</a>
+  </div>
+  <canvas id="c"></canvas>
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "three/examples/jsm/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+  <script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+
+    // ===== Boilerplate =====
+    const canvas = document.getElementById('c');
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setSize(window.innerWidth, window.innerHeight);
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x000000);
+
+    const camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 0.1, 100);
+    camera.position.set(0, 1.6, 5.0);
+
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true; controls.dampingFactor = 0.08; controls.target.set(0,0,0);
+
+    const amb = new THREE.AmbientLight(0xffffff, 0.9); scene.add(amb);
+
+    window.addEventListener('resize', ()=>{
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      camera.aspect = window.innerWidth/window.innerHeight;
+      camera.updateProjectionMatrix();
+    });
+
+    // ===== UI Toggles =====
+    let SHOW_ELECTRONS = true;
+    let SHOW_STRINGS   = true;
+    let SHOW_ARROWS    = true;
+
+    const toggleElectrons = document.getElementById('toggleElectrons');
+    const toggleStrings   = document.getElementById('toggleStrings');
+    const toggleArrows    = document.getElementById('toggleArrows');
+
+    toggleElectrons.addEventListener('change', ()=>{ SHOW_ELECTRONS = toggleElectrons.checked; applyVisibility(); });
+    toggleStrings  .addEventListener('change', ()=>{ SHOW_STRINGS   = toggleStrings.checked;   applyVisibility(); });
+    toggleArrows   .addEventListener('change', ()=>{ SHOW_ARROWS    = toggleArrows.checked;    applyVisibility(); });
+
+    // ===== Utilities =====
+    function easeInOut(t){ return t<.5 ? 2*t*t : 1 - Math.pow(-2*t+2,2)/2; }
+    function clamp(x,a,b){ return Math.max(a, Math.min(b,x)); }
+
+    function makeDot(radius=0.18, color=0x4cc9f0){
+      return new THREE.Mesh(new THREE.SphereGeometry(radius, 32, 32), new THREE.MeshBasicMaterial({ color, transparent:true, opacity:1 }));
+    }
+    function makeLabel(text, scale=1){
+      const cvs = document.createElement('canvas');
+      const ctx = cvs.getContext('2d');
+      const fs = 120; ctx.font = `${fs}px Inter, Arial, sans-serif`;
+      const m = ctx.measureText(text); cvs.width = Math.ceil(m.width+24); cvs.height = fs+24;
+      ctx.font = `${fs}px Inter, Arial, sans-serif`; ctx.fillStyle = '#fff'; ctx.textBaseline = 'top'; ctx.fillText(text,12,12);
+      const tex = new THREE.CanvasTexture(cvs);
+      const spr = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, depthTest: false }));
+      spr.scale.set(cvs.width/900*scale, cvs.height/900*scale, 1);
+      return spr;
+    }
+    function makeLine(){ return new THREE.Line(new THREE.BufferGeometry(), new THREE.LineBasicMaterial({ color:0x9aa0a6, transparent:true, opacity:1 })); }
+
+    // --- NEW: vector arrow helper (center -> electron) ---
+    function makeArrow(color=0xff6d00){
+      // Default direction x̂; we’ll set direction/length dynamically
+      const dir = new THREE.Vector3(1,0,0);
+      const origin = new THREE.Vector3(0,0,0);
+      const length = 1;
+      const headLength = 0.28;
+      const headWidth  = 0.16;
+      const arrow = new THREE.ArrowHelper(dir, origin, length, color, headLength, headWidth);
+      // Make both parts transparent-ready
+      arrow.cone.material.transparent = true;
+      arrow.line.material.transparent = true;
+      return arrow;
+    }
+    function setArrow(arrow, to){
+      const len = to.length();
+      const dir = to.clone().normalize();
+      arrow.position.set(0,0,0);
+      arrow.setDirection(dir);
+      arrow.setLength(len, 0.28, 0.16);
+    }
+    function setArrowOpacity(arrow, op){
+      if (!arrow) return;
+      if (arrow.cone && arrow.cone.material) arrow.cone.material.opacity = op;
+      if (arrow.line && arrow.line.material) arrow.line.material.opacity = op;
+    }
+    function setArrowVisible(arrow, vis){
+      if (!arrow) return;
+      arrow.visible = vis;
+      setArrowOpacity(arrow, vis ? 1 : 0);
+    }
+
+    function angleArc(v1, v2, radius=0.7, color=0xffd54f){
+      const a = v1.clone().normalize();
+      const b = v2.clone().normalize();
+      const dot = clamp(a.dot(b), -1, 1);
+      const theta = Math.acos(dot);
+      const n = new THREE.Vector3().crossVectors(a,b);
+      let t1;
+      if (n.length() < 1e-6){
+        t1 = new THREE.Vector3(1,0,0);
+        if (Math.abs(a.dot(t1))>0.9) t1.set(0,1,0);
+        t1.sub(a.clone().multiplyScalar(a.dot(t1))).normalize();
+      } else {
+        t1 = new THREE.Vector3().crossVectors(n.clone().normalize(), a).normalize();
+      }
+      const segs = 64; const pts = [];
+      for(let i=0;i<=segs;i++){
+        const t = theta * (i/segs);
+        const p = a.clone().multiplyScalar(Math.cos(t)).add(t1.clone().multiplyScalar(Math.sin(t))).multiplyScalar(radius);
+        pts.push(p);
+      }
+      const geom = new THREE.BufferGeometry().setFromPoints(pts);
+      const line = new THREE.Line(geom, new THREE.LineBasicMaterial({ color, transparent:true, opacity:1 }));
+      const label = makeLabel(`${(theta*180/Math.PI).toFixed(1)}°`, 0.7);
+      const arr = geom.attributes.position.array; const count = geom.attributes.position.count || (arr.length/3);
+      const mid = new THREE.Vector3().fromArray(arr, Math.floor(count/2)*3);
+      label.position.copy(mid);
+      label.material.depthTest = false;
+      return { line, label };
+    }
+
+    function slerpVec(a, b, t){
+      a = a.clone().normalize(); b = b.clone().normalize();
+      let d = clamp(a.dot(b), -1, 1);
+      if (d > 0.9995) return a.clone().lerp(b, t).normalize();
+      const th0 = Math.acos(d); const st0 = Math.sin(th0);
+      const th = th0 * t; const s0 = Math.sin(th0 - th)/st0; const s1 = Math.sin(th)/st0;
+      return a.clone().multiplyScalar(s0).add(b.clone().multiplyScalar(s1)).normalize();
+    }
+
+    // Center dot (pivot)
+    const centerDot = new THREE.Mesh(new THREE.SphereGeometry(0.06, 20, 20), new THREE.MeshBasicMaterial({ color: 0x9aa0a6 }));
+    scene.add(centerDot);
+
+    // ===== Visibility helper =====
+    function setGroupVisibility(arr, visible){
+      if (!arr) return;
+      for (const o of arr){
+        if (!o) continue;
+        if ('visible' in o) o.visible = visible;
+        if (o.material && 'opacity' in o.material) o.material.opacity = visible ? 1 : 0;
+        if (o.type === 'ArrowHelper') setArrowOpacity(o, visible ? 1 : 0);
+      }
+    }
+    function applyVisibility(){
+      if (!active) return;
+      setGroupVisibility(active.dots,   SHOW_ELECTRONS);
+      setGroupVisibility(active.lines,  SHOW_STRINGS);
+      setGroupVisibility(active.arrows, SHOW_ARROWS);
+    }
+
+    // ===== Stage Factory (labels + angles) =====
+    function StageTwo(){
+      const R = 2.0; const base = -Math.PI/2; // downward
+      const group = new THREE.Group(); scene.add(group);
+
+      const e1 = makeDot(); const e2 = makeDot();
+      const l1 = makeLine(); const l2 = makeLine();
+      const a1 = makeArrow(); const a2 = makeArrow(); // NEW arrows
+      const t1 = makeLabel('e',0.8); const t2 = makeLabel('e',0.8);
+      group.add(e1,e2,l1,l2,a1,a2,t1,t2);
+
+      let t=0; const dur=2.0; let phase='anim'; let arcObj=null; let hold=1.2; let fade=0.6;
+      const startSep = 60*Math.PI/180; const endSep = Math.PI;
+
+      function updateGeom(sep){
+        const a = sep/2;
+        const a1ang = base + a, a2ang = base - a;
+        const p1 = new THREE.Vector3(Math.cos(a1ang), Math.sin(a1ang), 0).multiplyScalar(R);
+        const p2 = new THREE.Vector3(Math.cos(a2ang), Math.sin(a2ang), 0).multiplyScalar(R);
+        e1.position.copy(p1); e2.position.copy(p2);
+        t1.position.copy(p1); t2.position.copy(p2);
+        l1.geometry.setFromPoints([new THREE.Vector3(), p1]);
+        l2.geometry.setFromPoints([new THREE.Vector3(), p2]);
+        setArrow(a1, p1); setArrow(a2, p2);     // update arrows
+        if (arcObj){ group.remove(arcObj.line, arcObj.label); arcObj=null; }
+        if (phase!=='fade'){ arcObj = angleArc(p1, p2, 0.7, 0xffd54f); group.add(arcObj.line, arcObj.label); }
+      }
+
+      updateGeom(startSep);
+
+      function setOpacity(op){
+        [e1.material,e2.material,l1.material,l2.material,arcObj?.line.material].forEach(m=>{ if(m){m.opacity = op;} });
+        setArrowOpacity(a1, op); setArrowOpacity(a2, op);
+        if (arcObj && arcObj.label.material) arcObj.label.material.opacity = op;
+        t1.material.opacity = op; t2.material.opacity = op;
+      }
+
+      const api = {
+        group,
+        dots: [e1,e2,t1,t2],
+        lines: [l1,l2],
+        arrows: [a1,a2],
+        tick: (dt)=>{
+          if (phase==='anim'){
+            t += dt; const u = easeInOut(clamp(t/dur,0,1)); const sep = startSep + (endSep-startSep)*u; updateGeom(sep);
+            if (t>=dur){ phase='hold'; t=0; }
+          } else if (phase==='hold'){
+            t += dt; if (t>=hold){ phase='fade'; t=0; }
+          } else if (phase==='fade'){
+            t += dt; const u = clamp(t/fade,0,1); const op = 1-u; setOpacity(op); if (t>=fade) return true;
+          }
+          return false;
+        },
+        dispose: ()=>{ scene.remove(group); group.traverse(o=>{ if(o.geometry) o.geometry.dispose?.(); if(o.material) o.material.dispose?.();}); }
+      };
+      setTimeout(applyVisibility,0);
+      return api;
+    }
+
+    function StageThree(){
+      const R = 2.0; const base = -Math.PI/2;
+      const group = new THREE.Group(); scene.add(group);
+
+      const dots = [makeDot(), makeDot(), makeDot()];
+      const lines = [makeLine(), makeLine(), makeLine()];
+      const arrows = [makeArrow(), makeArrow(), makeArrow()]; // NEW
+      const labels = [makeLabel('e',0.8), makeLabel('e',0.8), makeLabel('e',0.8)];
+      dots.forEach(d=>group.add(d)); lines.forEach(l=>group.add(l)); arrows.forEach(a=>group.add(a)); labels.forEach(s=>group.add(s));
+
+      const startOff = [-15, 0, 15].map(d=>d*Math.PI/180);
+      const finalOff = [-120, 0, 120].map(d=>d*Math.PI/180);
+      let t=0; const dur=2.0; let phase='anim'; let arcObj=null; let hold=1.2; let fade=0.6;
+
+      function update(u){
+        const offs = startOff.map((s,i)=> s + (finalOff[i]-s)*u);
+        const P = offs.map(a=> new THREE.Vector3(Math.cos(base+a), Math.sin(base+a), 0).multiplyScalar(R));
+        for (let i=0;i<3;i++){
+          dots[i].position.copy(P[i]); labels[i].position.copy(P[i]);
+          lines[i].geometry.setFromPoints([new THREE.Vector3(), P[i]]);
+          setArrow(arrows[i], P[i]);                                  // update arrows
+        }
+        if (arcObj){ group.remove(arcObj.line, arcObj.label); arcObj=null; }
+        if (phase!=='fade'){ arcObj = angleArc(P[0], P[1], 0.7, 0xffd54f); group.add(arcObj.line, arcObj.label); }
+      }
+      update(0);
+
+      function setOpacity(op){
+        dots.forEach(d=>d.material.opacity=op);
+        lines.forEach(l=>l.material.opacity=op);
+        arrows.forEach(a=>setArrowOpacity(a, op));
+        labels.forEach(s=>s.material.opacity=op);
+        if (arcObj){ arcObj.line.material.opacity=op; if (arcObj.label.material) arcObj.label.material.opacity=op; }
+      }
+
+      const api = {
+        group,
+        dots: [...dots, ...labels],
+        lines,
+        arrows,
+        tick: (dt)=>{
+          if (phase==='anim'){
+            t += dt; const u = easeInOut(clamp(t/dur,0,1)); update(u); if (t>=dur){ phase='hold'; t=0; }
+          } else if (phase==='hold'){
+            t += dt; if (t>=hold){ phase='fade'; t=0; }
+          } else if (phase==='fade'){
+            t += dt; const u = clamp(t/fade,0,1); setOpacity(1-u); if (t>=fade) return true;
+          }
+          return false;
+        },
+        dispose: ()=>{ scene.remove(group); group.traverse(o=>{ if(o.geometry) o.geometry.dispose?.(); if(o.material) o.material.dispose?.();}); }
+      };
+      setTimeout(applyVisibility,0);
+      return api;
+    }
+
+    function StageFour(){
+      // 4 electrons: first 2D square (90° apart), then 3D tetrahedron
+      const R = 2.0;
+      const group = new THREE.Group(); scene.add(group);
+      const dots = [makeDot(), makeDot(), makeDot(), makeDot()];
+      const lines = [makeLine(), makeLine(), makeLine(), makeLine()];
+      const arrows = [makeArrow(), makeArrow(), makeArrow(), makeArrow()]; // NEW
+      const labels = [makeLabel('e',0.8), makeLabel('e',0.8), makeLabel('e',0.8), makeLabel('e',0.8)];
+      dots.forEach(d=>group.add(d)); lines.forEach(l=>group.add(l)); arrows.forEach(a=>group.add(a)); labels.forEach(s=>group.add(s));
+
+      const base = -Math.PI/2;
+      const startOff2D = [-15, -5, 5, 15].map(d=>d*Math.PI/180);
+      const finalOff2D = [-135, -45, 45, 135].map(d=>d*Math.PI/180); // 90° apart
+
+      const theta = Math.acos(-1/3);
+      const targets3D = [
+        new THREE.Vector3(0,0,1),
+        new THREE.Vector3(Math.sin(theta)*Math.cos(0), Math.sin(theta)*Math.sin(0), Math.cos(theta)),
+        new THREE.Vector3(Math.sin(theta)*Math.cos(2*Math.PI/3), Math.sin(theta)*Math.sin(2*Math.PI/3), Math.cos(theta)),
+        new THREE.Vector3(Math.sin(theta)*Math.cos(4*Math.PI/3), Math.sin(theta)*Math.sin(4*Math.PI/3), Math.cos(theta))
+      ];
+
+      let t=0; let phase='toPlanar';
+      const durPlanar = 1.8, holdPlanar = 1.0, durTo3D = 2.2, holdFinal = 1.0;
+      let arcObj=null;
+
+      function P_from_2Doffs(offs){
+        return offs.map(a=> new THREE.Vector3(Math.cos(base+a), Math.sin(base+a), 0).multiplyScalar(R));
+      }
+
+      function setPositions(P){
+        for (let i=0;i<4;i++){
+          dots[i].position.copy(P[i]); labels[i].position.copy(P[i]);
+          lines[i].geometry.setFromPoints([new THREE.Vector3(), P[i]]);
+          setArrow(arrows[i], P[i]);                                   // update arrows
+        }
+      }
+
+      setPositions(P_from_2Doffs(startOff2D));
+
+      const api = {
+        group,
+        dots: [...dots, ...labels],
+        lines,
+        arrows,
+        tick: (dt)=>{
+          t += dt;
+          if (phase==='toPlanar'){
+            const u = easeInOut(clamp(t/durPlanar,0,1));
+            const offs = startOff2D.map((s,i)=> s + (finalOff2D[i]-s)*u);
+            const P = P_from_2Doffs(offs);
+            setPositions(P);
+            if (arcObj){ group.remove(arcObj.line, arcObj.label); arcObj=null; }
+            arcObj = angleArc(P[0], P[1], 0.7, 0xffd54f);
+            group.add(arcObj.line, arcObj.label);
+            if (t>=durPlanar){ phase='holdPlanar'; t=0; }
+          }
+          else if (phase==='holdPlanar'){
+            if (t>=holdPlanar){ if (arcObj){ group.remove(arcObj.line, arcObj.label); arcObj=null; } phase='to3D'; t=0; }
+          }
+          else if (phase==='to3D'){
+            const u = easeInOut(clamp(t/durTo3D,0,1));
+            const U2D = finalOff2D.map(a=> new THREE.Vector3(Math.cos(base+a), Math.sin(base+a), 0).normalize());
+            const U = U2D.map((u2d,i)=> slerpVec(u2d, targets3D[i], u));
+            const P = U.map(ui=> ui.clone().multiplyScalar(R));
+            setPositions(P);
+            if (arcObj){ group.remove(arcObj.line, arcObj.label); arcObj=null; }
+            arcObj = angleArc(P[0], P[1], 0.7, 0xffd54f);
+            group.add(arcObj.line, arcObj.label);
+            if (t>=durTo3D){ phase='finalHold'; t=0; }
+          }
+          else if (phase==='finalHold'){
+            /* stay */
+          }
+          return false;
+        },
+        dispose: ()=>{ /* keep final */ }
+      };
+      setTimeout(applyVisibility,0);
+      return api;
+    }
+
+    // ===== Timeline Controller =====
+    let stages = []; let current = -1; let active = null;
+
+    function start(){ stages = [StageTwo, StageThree, StageFour]; current = -1; nextStage(); }
+    function nextStage(){ if (active && active.dispose) active.dispose(); current += 1; if (current >= stages.length){ return; } active = stages[current](); applyVisibility(); }
+
+    window.addEventListener('click', ()=>{ nextStage(); });
+    window.addEventListener('keydown', (e)=>{ if (e.key.toLowerCase()==='r'){ // restart
+      if (active && active.dispose){ active.dispose(); }
+      const keep = new Set([centerDot, amb]);
+      scene.children = scene.children.filter(ch => keep.has(ch));
+      scene.add(centerDot); scene.add(amb);
+      start();
+    }});
+
+    const clock = new THREE.Clock();
+    function animate(){
+      requestAnimationFrame(animate);
+      const dt = Math.min(clock.getDelta(), 0.033);
+      controls.update();
+      if (active){ const done = active.tick(dt); if (done) nextStage(); }
+      renderer.render(scene, camera);
+    }
+
+    start();
+    animate();
+
+    // ===== Recording (WebM via MediaRecorder) =====
+    const recStartBtn = document.getElementById('recStart');
+    const recStopBtn = document.getElementById('recStop');
+    const dlLast = document.getElementById('dlLast');
+    let mediaRecorder = null; let chunks = []; let lastUrl = null; let lastExt = 'webm';
+
+    function getSupportedMime(){
+      const candidates = [
+        'video/webm;codecs=vp9',
+        'video/webm;codecs=vp8',
+        'video/webm',
+        'video/mp4;codecs=avc1'
+      ];
+      for (const c of candidates){ if (window.MediaRecorder && MediaRecorder.isTypeSupported(c)) return c; }
+      return '';
+    }
+
+    recStartBtn.addEventListener('click', ()=>{
+      const stream = renderer.domElement.captureStream(60);
+      const mime = getSupportedMime();
+      try {
+        mediaRecorder = new MediaRecorder(stream, { mimeType: mime || undefined, videoBitsPerSecond: 8_000_000 });
+      } catch (e){
+        mediaRecorder = new MediaRecorder(stream);
+      }
+      chunks = [];
+      mediaRecorder.ondataavailable = (e)=>{ if (e.data && e.data.size) chunks.push(e.data); };
+      mediaRecorder.onstop = ()=>{
+        const type = mediaRecorder.mimeType || 'video/webm';
+        const blob = new Blob(chunks, { type });
+        if (lastUrl) URL.revokeObjectURL(lastUrl);
+        lastUrl = URL.createObjectURL(blob);
+        lastExt = type.includes('mp4') ? 'mp4' : 'webm';
+        const filename = `electrons_strings_${Date.now()}.${lastExt}`;
+        const a = document.createElement('a');
+        a.href = lastUrl; a.download = filename;
+        document.body.appendChild(a); a.click(); setTimeout(()=>{ a.remove(); }, 100);
+        dlLast.href = lastUrl; dlLast.download = filename; dlLast.style.display = 'inline-block';
+      };
+      mediaRecorder.start();
+      recStartBtn.disabled = true; recStopBtn.disabled = false;
+    });
+
+    recStopBtn.addEventListener('click', ()=>{
+      if (mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop();
+      recStartBtn.disabled = false; recStopBtn.disabled = true;
+    });
+  </script>
+</body>
+</html>
