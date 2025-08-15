@@ -363,8 +363,8 @@ class SymmetryTemplate(Scene):
                 MathTex(r"\mathrm{Charged\ Sphere\ (3D)}", font_size=28)
             ),
             (
-                MathTex(r"\mathrm{Water\ Droplets}", font_size=28),
-                MathTex(r"\mathrm{Ripples,\ Snowflakes}", font_size=28)
+                MathTex(r"\mathrm{Water\ Droplets, Ripples}", font_size=28),
+                MathTex(r"\mathrm{Snowflakes(Hexagonal)}", font_size=28)
             )
         ]
 
@@ -423,3 +423,55 @@ class SymmetryTemplate(Scene):
             self.wait(2)
 
         self.wait(1)
+
+class ThomsonSlide(Scene):
+    def construct(self):
+        # Title + question (start centered)
+        title = MathTex(
+            r'\text{\textbf{Thomson problem}}',
+            font_size=52
+        )
+        subtitle = MathTex(
+            r'\text{How do multiple electrons arrange themselves on the surface of a sphere?}',
+            font_size=36
+        )
+        header = VGroup(title, subtitle).arrange(DOWN, buff=0.35)
+
+        # Optional: color flair
+        title.set_color_by_gradient(BLUE, TEAL)
+        subtitle.set_color(GRAY_A)
+
+        self.play(FadeIn(header, shift=0.3*UP), run_time=1.0)
+        self.wait(0.5)
+
+        # Move header to the top
+        self.play(header.animate.to_edge(UP), run_time=0.9)
+        self.wait(0.2)
+
+        # Captions: appear at the same time (DL, bottom-center, DR)
+        cap_left  = MathTex(r"\mathrm{n=4}", font_size=30).to_corner(DL).shift(RIGHT*1.2 + UP*0.6)
+        cap_mid   = MathTex(r"\mathrm{n=5}", font_size=30).to_edge(DOWN).shift(UP*0.6)
+        cap_right = MathTex(r"\mathrm{n=6}", font_size=30).to_corner(DR).shift(LEFT*1.2 + UP*0.6)
+
+        self.play(
+            Write(cap_left),
+            Write(cap_mid),
+            Write(cap_right),
+            run_time=0.8
+        )
+        self.wait(2)
+
+        # (Optional) If you want to fade out at the end:
+        self.play(FadeOut(header), FadeOut(cap_left), FadeOut(cap_mid), FadeOut(cap_right))
+        self.wait(0.3)
+
+class Image(Scene):
+    def construct(self):
+        # Load an image from file
+        img = ImageMobject("snowflake.jpg")  # replace with your file path
+        img.scale(2)  # optional scaling
+        self.add(img)
+
+        # Rotate slowly over 10 seconds
+        self.play(Rotate(img, angle=TAU, run_time=10, rate_func=linear))
+        self.wait()
