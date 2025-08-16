@@ -475,3 +475,127 @@ class Image(Scene):
         # Rotate slowly over 10 seconds
         self.play(Rotate(img, angle=TAU, run_time=10, rate_func=linear))
         self.wait()
+
+class Fan(Scene):
+    def construct(self):
+        # Load an image from file
+        img = ImageMobject("fan.png")  # replace with your file path
+        img.scale(2)  # optional scaling
+        self.add(img)
+
+        # Rotate slowly over 10 seconds
+        self.play(Rotate(img, angle=TAU, run_time=10, rate_func=linear))
+        self.wait()
+
+class ThinkingMuBot(Scene):
+    def construct(self):
+        title = MathTex(
+            r'\text{``Symmetry brings balance in nature``}',
+            font_size=48
+        ).set_color_by_gradient(BLUE, GREEN).to_edge(UP)
+        self.play(FadeIn(title))
+
+        # Thought bubbles (dots leading to cloud)
+        dot1 = Dot(radius=0.08, color=WHITE).move_to(2*DL).shift(1.5*LEFT + 0.5*UP)
+        dot2 = Dot(radius=0.12, color=WHITE).next_to(dot1, UR, buff=0.2)
+        dot3 = Dot(radius=0.16, color=WHITE).next_to(dot2, UR, buff=0.2)
+
+        # Thinking cloud (Rounded Rectangle)
+        thinking_cloud = RoundedRectangle(width=7, height=2.5, corner_radius=0.3, color=WHITE, fill_opacity=0.2)
+        thinking_cloud.next_to(dot3, UR)
+
+        tex1 = Tex("Impossible to prove in a", "purely philosophical sense !").scale(0.8).arrange(DOWN).move_to(thinking_cloud.get_center())
+        tex2 = Tex("\"balance\" = equilibrium")
+        tex2.arrange(DOWN)
+
+        tex2.scale(0.8).move_to(thinking_cloud.get_center())
+        self.play(FadeIn(VGroup(dot1, dot2, dot3, thinking_cloud)))
+        self.play(Write(tex1))
+        self.play(Transform(tex1, tex2))
+        self.wait(2)
+        # self.add(title, dot1, dot2, dot3, thinking_cloud)
+
+class MuBot(Scene):
+    def construct(self):
+        # Mu symbol as the body of the bot
+        mu = MathTex(r"\mu").scale(5).set_color(BLUE).shift(LEFT + DOWN)
+        
+        # Eyes: Create two small white circles with black pupils
+                # Eyes: Create two white ovals for the eyes
+        left_eye_white = Ellipse(width=0.3, height=0.4, color=WHITE, fill_opacity=1).shift(UP * 0.6 + LEFT * 1.25 + DOWN)
+        right_eye_white = Ellipse(width=0.3, height=0.4, color=WHITE, fill_opacity=1).shift(UP * 0.6 + LEFT * 0.65 + DOWN)
+        left_eye_pupil = Dot(point=UP * 0.6 + LEFT * 1.25 + DOWN, radius=0.1, color=BLACK)
+        right_eye_pupil = Dot(point=UP * 0.6 + LEFT * 0.65 + DOWN, radius=0.1, color=BLACK)
+        
+        # Add small circle in the middle of each pupil
+        left_eye_glint = Dot(point=UP * 0.6 + LEFT * 1.25 + DOWN, radius=0.03, color=WHITE, fill_opacity=0.8)
+        right_eye_glint = Dot(point=UP * 0.6 + LEFT * 0.65 + DOWN, radius=0.03, color=WHITE,fill_opacity=0.8)
+        
+        # Group the eyes for easy animation
+        eyes = VGroup(left_eye_white, right_eye_white, 
+                      left_eye_pupil, right_eye_pupil,
+                      left_eye_glint,right_eye_glint)
+
+        # Assemble the bot
+        mu_bot = VGroup(mu, eyes)
+
+
+        # Mouth (arc for different moods)
+        happy_mouth = Arc(radius=0.2, 
+                          start_angle= - 3* PI/4,
+                          angle= 2 * PI/4).set_color(WHITE).move_to(DOWN * 0.9 + LEFT)
+        sad_mouth = Arc(radius=0.2, start_angle= PI/4,
+                        angle= 2 *PI/4).set_color(WHITE).move_to(DOWN * 0.9 + LEFT)
+        thinking_mouth = Line(start=LEFT * 0.15 + DOWN * 0.9 + LEFT, 
+                              end=RIGHT * 0.15 + DOWN * 0.9 + LEFT).set_color(WHITE)
+        mu_bot_happy = VGroup(mu_bot,happy_mouth)
+        mu_bot_sad = VGroup(mu_bot,sad_mouth)
+        mu_bot_thinking = VGroup(mu_bot,thinking_mouth)
+
+        # Blinking effect using fade-in and fade-out
+        def blink():
+            return AnimationGroup(
+                FadeOut(left_eye_pupil,right_eye_pupil,
+                        left_eye_glint,right_eye_glint),
+                FadeIn(left_eye_pupil,right_eye_pupil,
+                       left_eye_glint,right_eye_glint),
+                lag_ratio=0.2,
+            )
+
+        
+        # Intro Animation
+        self.play(FadeIn(mu_bot_thinking), run_time=1.5)
+        # Blinking Animation
+        self.play(blink(), run_time=0.5)
+        self.wait(0.5)
+        self.play(blink(), run_time=0.5)
+        self.wait(1)
+    
+        # Blinking Animation
+        self.play(blink(), run_time=0.5)
+        self.wait(0.5)
+        self.play(blink(), run_time=0.5)
+        self.wait(1)
+                
+        self.play(ReplacementTransform(mu_bot_thinking, mu_bot_happy), run_time=1)
+        # Blinking Animation
+        self.play(blink(), run_time=0.5)
+        self.wait(0.5)
+        self.play(blink(), run_time=0.5)
+        self.wait(2)
+
+        self.play(ReplacementTransform(mu_bot_happy, mu_bot_sad), run_time=1)
+        # Blinking Animation
+        self.play(blink(), run_time=0.5)
+        self.wait(0.5)
+        self.play(blink(), run_time=0.5)
+        self.wait(2)
+
+        self.play(ReplacementTransform(mu_bot_sad, mu_bot_thinking), run_time=1)
+        # Blinking Animation
+        self.play(blink(), run_time=0.5)
+        self.wait(0.5)
+        self.play(blink(), run_time=0.5)
+        self.wait(2)
+
+       
