@@ -108,3 +108,114 @@ class Loading1(Scene):
                 self.wait(0.2)
 
         self.wait(1)
+
+class Sum(Scene):
+    def construct(self):
+        sum_eq = MathTex(
+            r"\sum_{p=0}^{m}\;\sum_{k=0}^{n-1}\Big(",
+            r"\sin\!\frac{\pi p}{m}",   # <- isolate sin φ for x
+            r"\cos\!\frac{2\pi k}{n},\;",
+            r"\sin\!\frac{\pi p}{m}",   # <- isolate sin φ for y
+            r"\sin\!\frac{2\pi k}{n},\;",
+            r"\cos\!\frac{\pi p}{m}",
+            r"\Big)",
+        ).to_edge(UP)
+
+        sum_eq1 = MathTex(
+            r"\sum_{p=0}^{m}\;\sum_{k=0}^{n-1}\Big(",
+            r"\sin\!\frac{\pi p}{m}",   # <- isolate sin φ for x
+            r"\cos\!\frac{2\pi k}{n},\;",
+            r"\sin\!\frac{\pi p}{m}",   # <- isolate sin φ for y
+            r"\sin\!\frac{2\pi k}{n},\;",
+            r"\cos\!\frac{\pi p}{m}",
+            r"\Big)",
+            r" = (0, 0, ?)"
+        ).to_edge(UP)
+        
+        sum_eq2 = MathTex(
+            r"\sum_{p=0}^{m}\;\sum_{k=0}^{n-1}\Big(",
+            r"\sin\!\frac{\pi p}{m}",   # <- isolate sin φ for x
+            r"\cos\!\frac{2\pi k}{n},\;",
+            r"\sin\!\frac{\pi p}{m}",   # <- isolate sin φ for y
+            r"\sin\!\frac{2\pi k}{n},\;",
+            r"\cos\!\frac{\pi p}{m}",
+            r"\Big)",
+            r" = (0, 0, 0)"
+        ).to_edge(UP)
+
+        self.play(Write(sum_eq))
+        self.wait(1)
+        self.play(sum_eq.animate.set_color_by_tex(r"\sin\!\frac{\pi p}{m}", YELLOW))
+
+        # # Add a brace + label to explicitly indicate factorization idea
+        brace = Brace(sum_eq[1:5], DOWN, color=YELLOW)
+        brace1 = Brace(sum_eq1[5], DOWN, color =  YELLOW)
+        self.play(Create(brace))
+        self.wait()
+
+        xy_factor = MathTex(
+            r"\text{For constant } \sin\phi:\quad",
+            r"\sin\!\left(\tfrac{\pi p}{m}\right)",
+            r"\left(",
+            r"\sum_{k=0}^{n-1}\cos\!\left(\tfrac{2\pi k}{n}\right),",
+            r"\ \sum_{k=0}^{n-1}\sin\!\left(\tfrac{2\pi k}{n}\right)",
+            r"\right)",
+            substrings_to_isolate=[r"\sin\!\left(\tfrac{\pi p}{m}\right)"],
+        ).scale(0.9)
+        xy_factor.next_to(sum_eq, DOWN, buff=0.6).set_color_by_tex(r"\sin\!\left(\tfrac{\pi p}{m}\right)", YELLOW)
+
+        # 2D identity equals (0,0)
+        xy_zero = MathTex(
+            r"\text{We already know}:\quad",
+            r"\sum_{k=0}^{n-1}\big(",
+            r"\cos\!\left(\tfrac{2\pi k}{n}\right),",
+            r"\sin\!\left(\tfrac{2\pi k}{n}\right)",
+            r"\big)\;=\;(0,0)"
+        ).scale(0.95)
+        xy_zero.next_to(xy_factor, DOWN, buff=0.6)
+
+        # Implication that whole xy-part dies
+        xy_vanish = MathTex(
+            r"\sin\!\left(\tfrac{\pi p}{m}\right)",
+            r"\left(",
+            r"\sum_{k=0}^{n-1}\cos\!\left(\tfrac{2\pi k}{n}\right),",
+            r"\ \sum_{k=0}^{n-1}\sin\!\left(\tfrac{2\pi k}{n}\right)",
+            r"\right)",
+            r"=\,(0,0)"
+        ).scale(0.95)
+        xy_vanish.next_to(xy_zero, DOWN, buff=0.6)
+
+        self.play(ReplacementTransform(sum_eq.copy(), xy_factor))
+        self.wait()
+        self.play(Write(xy_zero))
+        self.wait()
+        self.play(ReplacementTransform(xy_factor[1:].copy(), xy_vanish))
+        self.wait(2)
+        self.play(FadeOut(VGroup(xy_factor, xy_zero, xy_vanish)))
+        self.play(ReplacementTransform(sum_eq, sum_eq1), ReplacementTransform(brace, brace1))
+        self.wait(2)
+
+        z_sum = MathTex(
+            r"\text{For the } z\text{-component:}\quad",
+            r"\sum_{p=0}^{m}\cos\!\left(\tfrac{\pi p}{m}\right)",
+            r"=\,0" 
+        ).scale(0.95)
+        z_sum.next_to(sum_eq, DOWN, buff=0.9)
+
+        z_expl = Tex(
+            r"This is a symmetric sum over $\cos(\phi)$, which cancels when sampled evenly on $[0,\pi]$. "
+            r"Each term above the equator cancels with its mirror below, plus the poles. "
+            r"One can also apply Euler's formula for a more elegant proof.",
+            font_size = 30,
+            tex_environment="flushleft"   # keeps nice multiline alignment
+        ).next_to(z_sum, DOWN, buff=0.5)
+
+        self.play(Write(z_sum[0:2]))
+        self.wait(0.5)
+        self.play(FadeIn(z_expl, shift=DOWN))
+        self.wait()
+        self.play(Write(z_sum[2]), ReplacementTransform(sum_eq1[7], sum_eq2[7]))
+        self.wait()
+        self.play(FadeOut(VGroup(brace1, sum_eq2[7], z_sum, z_expl)))
+        self.play(VGroup(sum_eq1[0:7], sum_eq2[7]).animate.shift(2*DOWN))
+        self.wait()
