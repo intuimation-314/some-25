@@ -219,3 +219,67 @@ class Sum(Scene):
         self.play(FadeOut(VGroup(brace1, sum_eq2[7], z_sum, z_expl)))
         self.play(VGroup(sum_eq1[0:7], sum_eq2[7]).animate.shift(2*DOWN))
         self.wait()
+
+class Loading2(Scene):
+    def construct(self):
+        # Parameters
+        n, m = 3, 2
+        delta_theta, delta_phi = 120, 90
+        theta_vals = [i * delta_theta for i in range(n+1)]  # 0 → 360
+        phi_vals = [i * delta_phi for i in range(m+1)]      # 0 → 180
+
+        # Header (static info)
+        header = MathTex(
+            rf"n = {n},\; m = {m},\; \Delta\theta = {delta_theta}^\circ,\; \Delta\phi = {delta_phi}^\circ"
+        ).scale(0.9).to_edge(UP)
+
+        # Initial display for theta and phi
+        eq = MathTex(r"\theta = 0^\circ, \quad \phi = 0^\circ").scale(1.2)
+
+        # Add to scene
+        self.play(Write(header))
+        self.play(Write(eq))
+        self.wait(0.5)
+
+        # Animate discrete values
+        for phi in phi_vals:
+            for theta in theta_vals:
+                new_eq = MathTex(
+                    rf"\theta = {theta}^\circ, \quad \phi = {phi}^\circ"
+                ).scale(1.2)
+                self.play(Transform(eq, new_eq), run_time=0.5)
+                self.wait(0.2)
+
+        self.wait(1)
+
+class Loading3(Scene):
+    def construct(self):
+        # Parameters
+        n, m = 4, 2
+        delta_theta, delta_phi = 90, 90
+        theta_vals = [i * delta_theta for i in range(n+1)]  # 0 → 360
+        phi_vals = [i * delta_phi for i in range(m+1)]      # 0 → 180
+
+        # Header (static info)
+        header = MathTex(
+            rf"n = {n},\; m = {m},\; \Delta\theta = {delta_theta}^\circ,\; \Delta\phi = {delta_phi}^\circ"
+        ).scale(0.9).to_edge(UP)
+
+        # Initial display for theta and phi
+        eq = MathTex(r"\theta = 0^\circ, \quad \phi = 0^\circ").scale(1.2)
+
+        # Add to scene
+        self.play(Write(header))
+        self.play(Write(eq))
+        self.wait(0.5)
+
+        # Animate discrete values
+        for phi in phi_vals:
+            for theta in theta_vals:
+                new_eq = MathTex(
+                    rf"\theta = {theta}^\circ, \quad \phi = {phi}^\circ"
+                ).scale(1.2)
+                self.play(Transform(eq, new_eq), run_time=0.5)
+                self.wait(0.2)
+
+        self.wait(1)
