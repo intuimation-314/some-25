@@ -252,34 +252,76 @@ class Loading2(Scene):
 
         self.wait(1)
 
-class Loading3(Scene):
+class SumToIntegral(Scene):
     def construct(self):
-        # Parameters
-        n, m = 4, 2
-        delta_theta, delta_phi = 90, 90
-        theta_vals = [i * delta_theta for i in range(n+1)]  # 0 → 360
-        phi_vals = [i * delta_phi for i in range(m+1)]      # 0 → 180
+        title = Tex(
+            "As n, m tends to infity the double sum can be translated into double integral using Riemann Sums",
+            color = BLUE
+        ).to_edge(UP).scale(0.8)
 
-        # Header (static info)
-        header = MathTex(
-            rf"n = {n},\; m = {m},\; \Delta\theta = {delta_theta}^\circ,\; \Delta\phi = {delta_phi}^\circ"
-        ).scale(0.9).to_edge(UP)
+        # 1) Double sum (center)
+        sum_vec = MathTex(
+            r"\sum_{p=0}^{m} \sum_{k=0}^{n-1} "
+            r"\begin{pmatrix}"
+            r"\sin\left(\frac{\pi p}{m}\right)\cos\left(\frac{2\pi k}{n}\right) \\"
+            r"\sin\left(\frac{\pi p}{m}\right)\sin\left(\frac{2\pi k}{n}\right) \\"
+            r"\cos\left(\frac{\pi p}{m}\right)"
+            r"\end{pmatrix}",
+            font_size=40
+        ).scale(0.9)
 
-        # Initial display for theta and phi
-        eq = MathTex(r"\theta = 0^\circ, \quad \phi = 0^\circ").scale(1.2)
+        # 2) Limit label (to the left of sum)
+        lim_label = MathTex(
+            r"\lim_{n,m\to\infty}",
+            font_size=40
+        ).scale(0.9)
 
-        # Add to scene
-        self.play(Write(header))
-        self.play(Write(eq))
+        # 3) Arrow + integral (to the right of sum)
+        arrow_integral = MathTex(
+            r"\;\to\;"
+            r"\frac{nm}{2\pi^2}\int_{0}^{\pi}\int_{0}^{2\pi}"
+            r"\begin{pmatrix}"
+            r"\sin\phi\cos\theta \\"
+            r"\sin\phi\sin\theta \\"
+            r"\cos\phi"
+            r"\end{pmatrix}"
+            r"\, d\theta \, d\phi",
+            font_size=40
+        ).scale(0.9)
+
+        subtitle = Tex(
+            "Evaluating the double integral gives 0, again in the continuous limit: ",
+            color = BLUE
+        ).scale(0.8)
+
+        # 4) Evaluation (below the integral)
+        evaluation = MathTex(
+            r"\frac{nm}{2\pi^2}\int_{0}^{\pi}\int_{0}^{2\pi}"
+            r"\begin{pmatrix}"
+            r"\sin\phi\cos\theta \\"
+            r"\sin\phi\sin\theta \\"
+            r"\cos\phi"
+            r"\end{pmatrix}"
+            r"\, d\theta \, d\phi"
+            r" \;=\; "
+            r"\begin{pmatrix} 0 \\ 0 \\ 0 \end{pmatrix}",
+            font_size=40
+        ).scale(0.9)
+
+        # Layout
+        sum_vec.move_to(ORIGIN + 2.5*LEFT)
+        lim_label.next_to(sum_vec, LEFT, buff=0.6)
+        arrow_integral.next_to(sum_vec, RIGHT, buff=0.6)
+        subtitle.next_to(VGroup(sum_vec, arrow_integral), DOWN, buff=0.8)
+        evaluation.next_to(subtitle, DOWN, buff=0.8)
+
+        # Animations
+        self.play(Write(sum_vec))
+        self.wait(0.7)
+        self.play(Write(title), Write(lim_label))
         self.wait(0.5)
-
-        # Animate discrete values
-        for phi in phi_vals:
-            for theta in theta_vals:
-                new_eq = MathTex(
-                    rf"\theta = {theta}^\circ, \quad \phi = {phi}^\circ"
-                ).scale(1.2)
-                self.play(Transform(eq, new_eq), run_time=0.5)
-                self.wait(0.2)
-
-        self.wait(1)
+        self.play(FadeIn(arrow_integral, shift=RIGHT))
+        self.wait(0.5)
+        self.play(FadeIn(subtitle))
+        self.play(Write(evaluation))
+        self.wait(2)
