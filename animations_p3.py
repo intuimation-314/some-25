@@ -334,3 +334,133 @@ class ComplexRotation(Scene):
         remaining = TAU - 3 * step
         self.play(group.animate.rotate(remaining, about_point=center), run_time=1.2)
         self.wait(0.8)
+
+        self.wait(2)
+
+class Explanation(Scene):
+    def construct(self):
+        # --- Explanatory block ---
+        explanation = VGroup(
+            Tex(
+                "And not just that one! We could rotate by "
+                r"$\tfrac{4\pi}{n}$, $\tfrac{6\pi}{n}$, all the way to $2\pi$."
+                "\nEach of these rotations is part of a group.",
+                font_size=26),
+            MathTex(
+                r"R_k \;=\; e^{i \tfrac{2\pi k}{n}}, \quad k = 0,1,\dots,n-1.",
+                font_size=36
+            ),
+            Tex("then applying any group element $R_j$ gives", font_size=26),
+            MathTex(r"R_j S = S \quad \text{for all } j.", font_size=36),
+            Tex("Therefore,", font_size=26),
+            MathTex(r"S = 0.", font_size=44).set_color(YELLOW)
+        ).arrange(DOWN, buff=0.4).scale(1.5)
+
+        # Show the block
+        self.play(FadeIn(explanation[0]))
+        self.wait(3)
+        self.play(FadeIn(explanation[1]))
+        self.wait()
+        self.play(FadeIn(explanation[2:]))
+        self.wait()
+
+class MatrixExplanation(Scene):
+    def construct(self):
+        # --- Explanatory block: matrix version ---
+        explanation = VGroup(
+            Tex(
+                "We can do the exact same thing with ",
+                r"\textbf{matrix transformations}.",
+                font_size=26
+            ),
+            Tex(
+                "To rotate a vector by an angle $\\theta$, we use the rotation matrix:",
+                font_size=26
+            ),
+            MathTex(
+                r"R(\theta) = "
+                r"\begin{bmatrix}"
+                r"\cos\theta & -\sin\theta \\"
+                r"\sin\theta & \cos\theta"
+                r"\end{bmatrix}",
+                font_size=36
+            ),
+            Tex("And just like before, we can build a whole collection of these rotations.", font_size=26),
+            MathTex(
+                r"R_k \;=\; R\!\left(\tfrac{2k\pi}{n}\right), \quad k = 0,1,\dots,n-1.",
+                font_size=36
+            ),
+            Tex(
+                "This collection forms a ",
+                r"\textbf{group}",
+                " --- which mathematicians call $SO(2)$.",
+                font_size=26
+            ),
+        ).arrange(DOWN, buff=0.4).scale(1.5)
+
+        # Show in the same staged style as your Explanation scene
+        self.play(FadeIn(explanation[0]))
+        self.wait(3)
+        self.play(FadeIn(explanation[1:3]))
+        self.wait()
+        self.play(FadeIn(explanation[3:]))
+        self.wait()
+
+import numpy as np
+
+# --- Helpers ---
+def rot_z(theta):
+    c, s = np.cos(theta), np.sin(theta)
+    return np.array([[c, -s, 0],
+                     [s,  c, 0],
+                     [0,  0, 1]], dtype=float)
+
+def rot_cycle_xyz():  # 120° about axis (1,1,1) via coordinate cycle (x,y,z)->(y,z,x)
+    return np.array([[0,1,0],
+                     [0,0,1],
+                     [1,0,0]], dtype=float)
+
+def rodriques(u, theta):
+    # u must be unit 3-vector; returns 3x3 rotation matrix about u by theta
+    ux, uy, uz = u
+    K = np.array([[0,   -uz,  uy],
+                  [uz,   0,  -ux],
+                  [-uy, ux,   0]], dtype=float)
+    I = np.eye(3)
+    return I + np.sin(theta)*K + (1-np.cos(theta))*(K @ K)
+
+class TetrahedronRotation(ThreeDScene):
+    def construct(self):
+        self.set_camera_orientation(phi=65*DEGREES, theta=45*DEGREES, zoom=1.2)
+        axes = ThreeDAxes()
+        self.add(axes)
+
+        V = np.array([
+            [ 1,  1,  1],   # v1
+            [ 1, -1, -1],   # v2
+            [-1,  1, -1],   # v3
+            [-1, -1,  1],   # v4
+        ], dtype=float)
+
+        colors = [YELLOW, TEAL, PINK, ORANGE]
+        dots = VGroup(*[Dot3D(axes.c2p(*v), radius=0.07, color=colors[i]) for i, v in enumerate(V)])
+        vectors = VGroup(*[
+            Arrow3D(start=axes.c2p(0,0,0), end=axes.c2p(*v), color=colors[i], stroke_width=6)
+            for i, v in enumerate(V)
+        ])
+
+        self.play(FadeIn(dots))
+        self.play(LaggedStart(*[Create(vec) for vec in vectors], lag_ratio=0.2))
+        self.wait(0.5)
+
+        Rz90 = np.array([[0,-1,0],[1,0,0],[0,0,1]], dtype=float)
+        newV = (Rz90 @ V.T).T
+
+        self.play(*[
+            AnimationGroup(
+                dots[i].animate.move_to(axes.c2p(*nv)),
+                vectors[i].animate.put_start_and_end_on(axes.c2p(0,0,0), axes.c2p(*nv))
+            )
+            for i, nv in enumerate(newV)
+        ], run_time=2)
+        self.wait()
