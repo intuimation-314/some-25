@@ -73,6 +73,8 @@ class Vector3D(Scene):
         self.play(FadeIn(title))
         self.play(
                 Write(unit_vec))
+        self.wait(2)
+        self.play(Indicate(unit_vec[0]))
         self.wait()
         self.play(Write(sum_eq))
         self.wait()
@@ -325,3 +327,64 @@ class SumToIntegral(Scene):
         self.play(FadeIn(subtitle))
         self.play(Write(evaluation))
         self.wait(2)
+
+class MatrixExplanation3D(Scene):
+    def construct(self):
+        # --- Explanatory block: 3D rotations (SO(3)) ---
+        explanation = VGroup(
+            Tex(
+                "But what happens when we step into ",
+                r"\textbf{3D}",
+                "?",
+                font_size=26
+            ),
+            Tex(
+                "Here, rotations are $3\\times 3$ matrices—elements of the group $SO(3)$.",
+                font_size=26
+            ),
+            Tex(
+                "For instance, a rotation around the $z$-axis looks like this:",
+                font_size=26
+            ),
+            MathTex(
+                r"R_z(\theta) = "
+                r"\begin{bmatrix}"
+                r"\cos\theta & -\sin\theta & 0 \\"
+                r"\sin\theta & \cos\theta  & 0 \\"
+                r"0          & 0           & 1"
+                r"\end{bmatrix}.",
+                font_size=28
+            ),
+            Tex(
+                "There are similar ones for rotations about the $x$- and $y$-axes, "
+                "and by combining them you can get \\emph{any} rotation in 3D.",
+                font_size=26
+            ),
+            # NOTE: add a space or {} after \qquad to avoid \qquadR_y
+            MathTex(
+                r"R_x(\phi) = "
+                r"\begin{bmatrix}"
+                r"1 & 0         & 0        \\"
+                r"0 & \cos\phi  & -\sin\phi\\"
+                r"0 & \sin\phi  & \cos\phi "
+                r"\end{bmatrix},\qquad {}"
+                r"R_y(\psi) = "
+                r"\begin{bmatrix}"
+                r"\cos\psi & 0 & \sin\psi \\"
+                r"0        & 1 & 0        \\"
+                r"-\sin\psi& 0 & \cos\psi "
+                r"\end{bmatrix}.",
+                font_size=28
+            ),
+        ).arrange(DOWN, buff=0.4).scale(1.2)
+
+        # Staged reveals
+        self.play(FadeIn(explanation[0]))
+        self.wait(3)
+        self.play(FadeIn(explanation[1]))
+        self.wait()
+        self.play(FadeIn(explanation[2]))
+        self.play(FadeIn(explanation[3]))
+        self.wait()
+        self.play(FadeIn(explanation[4:]))
+        self.wait()

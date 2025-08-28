@@ -515,6 +515,15 @@ class ThinkingMuBot(Scene):
         self.wait(2)
         # self.add(title, dot1, dot2, dot3, thinking_cloud)
 
+class Question(Scene):
+    def construct(self):
+        title = MathTex(
+            r'\text{Can we mathematically prove that symmetry brings balance ?}',
+            font_size=48
+        ).set_color_by_gradient(BLUE, GREEN)
+        self.play(FadeIn(title))
+        self.wait(2)
+
 class MuBot(Scene):
     def construct(self):
         # Mu symbol as the body of the bot

@@ -429,38 +429,46 @@ def rodriques(u, theta):
     I = np.eye(3)
     return I + np.sin(theta)*K + (1-np.cos(theta))*(K @ K)
 
-class TetrahedronRotation(ThreeDScene):
+class TetrahedronVectors(ThreeDScene):
     def construct(self):
-        self.set_camera_orientation(phi=65*DEGREES, theta=45*DEGREES, zoom=1.2)
-        axes = ThreeDAxes()
+        # Regular tetrahedron vertices
+        verts = [
+            np.array([1,  1,  1]),
+            np.array([-1, -1,  1]),
+            np.array([-1,  1, -1]),
+            np.array([1, -1, -1]),
+        ]
+
+        # Axes
+        axes = ThreeDAxes(x_range=[-1.5, 1.5],
+                          y_range=[-1.5, 1.5],
+                          z_range=[-1.5, 1.5])
         self.add(axes)
 
-        V = np.array([
-            [ 1,  1,  1],   # v1
-            [ 1, -1, -1],   # v2
-            [-1,  1, -1],   # v3
-            [-1, -1,  1],   # v4
-        ], dtype=float)
-
-        colors = [YELLOW, TEAL, PINK, ORANGE]
-        dots = VGroup(*[Dot3D(axes.c2p(*v), radius=0.07, color=colors[i]) for i, v in enumerate(V)])
-        vectors = VGroup(*[
-            Arrow3D(start=axes.c2p(0,0,0), end=axes.c2p(*v), color=colors[i], stroke_width=6)
-            for i, v in enumerate(V)
+        # Lines/vectors
+        arrows = VGroup(*[
+            Arrow3D(ORIGIN, v, color=BLUE)
+            for v in verts
+        ])
+        dots = VGroup(*[Dot3D(point=v, radius=0.06, color=YELLOW) for v in verts])
+        labels = VGroup(*[
+            MathTex(f"v_{i+1}", font_size=36).move_to(1.15*verts[i])
+            for i in range(4)
         ])
 
-        self.play(FadeIn(dots))
-        self.play(LaggedStart(*[Create(vec) for vec in vectors], lag_ratio=0.2))
-        self.wait(0.5)
+        tetra = VGroup(arrows, dots, labels)
+        self.add(tetra)
 
-        Rz90 = np.array([[0,-1,0],[1,0,0],[0,0,1]], dtype=float)
-        newV = (Rz90 @ V.T).T
+        # Set camera so all 4 vertices are visible
+        self.set_camera_orientation(phi=65*DEGREES, theta=45*DEGREES, distance=6)
 
-        self.play(*[
-            AnimationGroup(
-                dots[i].animate.move_to(axes.c2p(*nv)),
-                vectors[i].animate.put_start_and_end_on(axes.c2p(0,0,0), axes.c2p(*nv))
-            )
-            for i, nv in enumerate(newV)
-        ], run_time=2)
-        self.wait()
+        # --- Rotation 1: 120° about axis through v1 (cycles v2,v3,v4) ---
+        self.play(Rotate(tetra, angle=120*DEGREES, axis=verts[0], about_point=ORIGIN), run_time=4)
+        self.wait(1)
+
+        # --- Rotation 2: 180° about axis through midpoints of edges (swaps pairs) ---
+        swap_axis = verts[0] + verts[1]  # axis parallel to edge midpoint line
+        self.play(Rotate(tetra, angle=180*DEGREES, axis=swap_axis, about_point=ORIGIN), run_time=4)
+        self.wait(1)
+        self.add(arrows)
+        self.wait(1)
