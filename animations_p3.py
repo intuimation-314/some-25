@@ -541,3 +541,49 @@ class GroupTheorySlide(Scene):
         header.target.to_edge(UP, buff=0.5)  # move whole group to top
         self.play(MoveToTarget(header), run_time=1)
         self.wait(2)
+
+class PermutationScene(Scene):
+    def construct(self):
+        # --- Header: R in SO(3)
+        header = MathTex(r"R \in \mathrm{SO}(3)").to_edge(UP, buff=0.8)
+        self.play(FadeIn(header, shift=0.2*UP), run_time=0.6)
+
+        # --- Define S
+        S_def = MathTex("S", "=", "v_1", "+", "v_2", "+", "v_3", "+", "v_4")
+        S_def.next_to(header, DOWN, buff=0.8)
+        self.play(Write(S_def), run_time=0.9)
+        self.wait(0.3)
+
+        # --- First rotation: R1 permutes (2 3 4)
+        # R1·S = v1 + v3 + v4 + v2  ->  R1·S = S
+        expr1 = MathTex(r"R_1\!\cdot\! S", "=", "v_1", "+", "v_3", "+", "v_4", "+", "v_2")
+        expr1.next_to(S_def, DOWN, buff=0.9)
+
+        note1 = Tex(r"(vertices permuted)").scale(0.6).next_to(expr1, RIGHT, buff=0.4)
+        self.play(Write(expr1), FadeIn(note1, shift=0.1*RIGHT), run_time=1.0)
+
+        expr1_toS = MathTex(r"R_1\!\cdot\! S", "=", "S").move_to(expr1.get_center())
+        self.play(TransformMatchingTex(expr1, expr1_toS), FadeOut(note1), run_time=0.9)
+        self.wait(0.4)
+
+        # --- Second rotation: R2 permutes as a disjoint swap (example: (12)(34))
+        # R2·S = v2 + v1 + v4 + v3  ->  R2·S = S
+        expr2 = MathTex(r"R_2\!\cdot\! S", "=", "v_2", "+", "v_1", "+", "v_4", "+", "v_3")
+        expr2.next_to(expr1_toS, DOWN, buff=0.7)
+
+        note2 = Tex(r"(vertices permuted)").scale(0.6).next_to(expr2, RIGHT, buff=0.4)
+        self.play(Write(expr2), FadeIn(note2, shift=0.1*RIGHT), run_time=1.0)
+
+        expr2_toS = MathTex(r"R_2\!\cdot\! S", "=", "S").move_to(expr2.get_center())
+        self.play(TransformMatchingTex(expr2, expr2_toS), FadeOut(note2), run_time=0.9)
+        self.wait(0.6)
+
+        # --- Closing remark (optional)
+        concl = Tex(r"Thus, for every $R \in \mathrm{SO}(3) , R S = S$.")
+        concl.scale(0.85).next_to(expr2_toS, DOWN, buff=0.8)
+        self.play(FadeIn(concl, shift=0.2*UP), run_time=0.7)
+        self.wait(0.8)
+        concl2 = Tex(r"Since permutations preserve the sum, S = 0.")
+        concl2.scale(0.85).next_to(concl, DOWN, buff=0.8)
+        self.play(FadeIn(concl2, shift=0.2*UP), run_time=0.7)
+        self.wait(0.8)
