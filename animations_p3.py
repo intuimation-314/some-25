@@ -472,3 +472,72 @@ class TetrahedronVectors(ThreeDScene):
         self.wait(1)
         self.add(arrows)
         self.wait(1)
+
+class PlatonicSolidLabels(Scene):
+    def construct(self):
+        SHOW_GUIDES = False
+
+        # List of solids with both n and name
+        solids = [
+            ("n = 4", "Tetrahedron"),
+            ("n = 5", "Triangular Bipyramid"),
+            ("n = 6", "Octahedron"),
+            ("n = 12", "Dodecahedron"),
+            ("n = 20", "Icosahedron"),
+        ]
+
+        box_w, box_h = 3.2, 3.2
+        cells = []
+
+        for n_label, name in solids:
+            box = Rectangle(
+                width=box_w,
+                height=box_h,
+                stroke_opacity=0.15 if SHOW_GUIDES else 0.0,
+                fill_opacity=0.0,
+            )
+
+            n_text = Tex(n_label, font_size=34)
+            name_text = Tex(name, font_size=34)
+            labels = VGroup(n_text, name_text).arrange(DOWN, buff=0.15).scale(0.8)
+            labels.next_to(box, DOWN, buff=0.3)
+
+            cells.append(VGroup(box, labels))
+
+        # Arrange: top row 3 solids, bottom row 2 solids
+        top_row = VGroup(*cells[:3]).arrange(RIGHT, buff=1.0)
+        bottom_row = VGroup(*cells[3:]).arrange(RIGHT, buff=1.0)
+
+        layout = VGroup(top_row, bottom_row).arrange(DOWN, buff=1.0)
+
+        # Scale and center so everything is visible
+        layout.scale_to_fit_height(config.frame_height - 1.0)
+        layout.move_to(ORIGIN)
+
+        self.play(FadeIn(layout, shift=0.2*UP), run_time=0.6)
+        self.wait()
+
+class GroupTheorySlide(Scene):
+    def construct(self):
+        # Title + definition (start centered)
+        title = MathTex(
+            r'\text{\textbf{Group Theory}}',
+            font_size=52
+        )
+        subtitle = MathTex(
+            r'\text{The branch of mathematics that studies symmetry.}',
+            font_size=36
+        )
+        header = VGroup(title, subtitle).arrange(DOWN, buff=0.35)
+
+        # Optional: color flair
+        title.set_color_by_gradient(PURPLE, BLUE)
+        subtitle.set_color(GRAY_A)
+
+        # Show the slide
+        self.play(FadeIn(header, shift=0.3*UP), run_time=1)
+        self.wait(3)        
+        header.generate_target()
+        header.target.to_edge(UP, buff=0.5)  # move whole group to top
+        self.play(MoveToTarget(header), run_time=1)
+        self.wait(2)
