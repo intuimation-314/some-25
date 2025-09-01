@@ -632,11 +632,8 @@ class ThreeBoxes(Scene):
     def construct(self):
         def make_box_with_title(title_text):
             # main box
-            box = RoundedRectangle(corner_radius=0.3, width=4, height=2.5)
+            box = RoundedRectangle(corner_radius=0.3, width=4, height=2.5, color=WHITE, fill_opacity=0.2)
             box.set_stroke(width=6)
-            box.set_fill(opacity=0.0)
-            box.set_color_by_gradient(*GRAD)
-
             # title inside at center (you can adjust to .next_to if you prefer top edge)
             title = MathTex(rf"\text{{{title_text}}}")
             title.set_color_by_gradient(*GRAD)
@@ -800,3 +797,12 @@ class LaTeXProofs(Scene):
         self.wait(0.5)
         self.play(Write(footer), run_time=1.4)
         self.wait(2)
+
+class SymmetryMessage(Scene):
+    def construct(self):
+        # Main title
+        message = MathTex(
+            r"\textbf{Imagine tying electrons to ends of string !}"
+        )
+        message.set_color_by_gradient(*GRAD)
+        message.scale(0.9)
