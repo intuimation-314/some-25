@@ -616,3 +616,187 @@ class ThinkingMuBot1(Scene):
         self.play(Transform(tex1, tex3))
         self.wait(2)
         # self.add(title, dot1, dot2, dot3, thinking_cloud)
+
+from manim import *
+
+# Manim Community v0.18.x
+# Render example:
+# manim -pqh three_boxes.py ThreeTopicBoxes
+# For transparent background (to composite in your editor): add -t
+# manim -pqh -t three_boxes.py ThreeTopicBoxes
+
+
+GRAD = (BLUE, TEAL)
+
+class ThreeBoxes(Scene):
+    def construct(self):
+        def make_box_with_title(title_text):
+            # main box
+            box = RoundedRectangle(corner_radius=0.3, width=4, height=2.5)
+            box.set_stroke(width=6)
+            box.set_fill(opacity=0.0)
+            box.set_color_by_gradient(*GRAD)
+
+            # title inside at center (you can adjust to .next_to if you prefer top edge)
+            title = MathTex(rf"\text{{{title_text}}}")
+            title.set_color_by_gradient(*GRAD)
+            title.scale(0.8)
+            title.move_to(box.get_center())
+
+            return VGroup(box, title)
+
+        # create three boxes
+        box1 = make_box_with_title("Physical Intuition")
+        box2 = make_box_with_title("Euler's Formula")
+        box3 = make_box_with_title("Group Theory")
+
+        # arrange in a row (at the top)
+        row = VGroup(box1, box2, box3).arrange(RIGHT, buff=1.0)
+        row.to_edge(UP, buff=1.0)
+
+        # animate boxes
+        self.play(Create(box1[0]), Write(box1[1]), run_time=1.0)
+        self.play(Create(box2[0]), Write(box2[1]), run_time=1.0)
+        self.play(Create(box3[0]), Write(box3[1]), run_time=1.0)
+
+        self.wait(2)
+
+        # bring in the message text
+        message = Tex(
+            r"Important message: Symmetry doesn't just look beautiful, "
+            r"it also forces balance"
+        )
+        message.set_color_by_gradient(*GRAD)
+        message.scale(0.9)
+        message.next_to(row, DOWN, buff=1.5)
+
+        self.play(Write(message), run_time=2.0)
+        self.wait(3)
+
+class SymmetryMessage(Scene):
+    def construct(self):
+        # Main title
+        message = MathTex(
+            r"\textbf{Symmetry doesn't just look beautiful, it also forces balance}"
+        )
+        message.set_color_by_gradient(*GRAD)
+        message.scale(0.9)
+
+        # Animate main title
+        self.play(Write(message), run_time=2.5)
+        self.wait(2)
+        self.play(message.animate.to_edge(UP))
+        # Subtitles at bottom right
+        sub1 = MathTex(r"\text{Polygons (2D)}").set_color_by_gradient(*GRAD).scale(0.8)
+        sub2 = MathTex(r"\text{Platonic Solids}").set_color_by_gradient(*GRAD).scale(0.8)
+        sub3 = MathTex(r"\text{Continuous Distribution}").set_color_by_gradient(*GRAD).scale(0.8)
+
+        subtitles = VGroup(sub1, sub2, sub3).arrange(RIGHT, buff=1.5)
+        subtitles.to_edge(DOWN, buff=0.8)
+
+        # Animate subtitles
+        self.play(FadeIn(subtitles), run_time=2.5)
+        self.wait(3)
+
+class NatureSymmetry(Scene):
+    def construct(self):
+        # Main title
+        message = MathTex(
+            r"\textbf{Nature doesn't arrange things randomly,}",
+            r"\textbf{it arranges them symmetrically}"
+        )
+        message.set_color_by_gradient(*GRAD).arrange(DOWN)
+        message.scale(0.9)
+        message.to_edge(UP, buff=0.8)
+
+        # Animate main title
+        self.play(Write(message), run_time=2.5)
+        self.wait(2)
+
+        # Sub-points
+        point1 = MathTex(r"\text{1. Balance}").set_color_by_gradient(*GRAD).scale(0.85)
+        point2 = MathTex(r"\text{2. Stability}").set_color_by_gradient(*GRAD).scale(0.85)
+        point3 = MathTex(r"\text{3. Efficiency}").set_color_by_gradient(*GRAD).scale(0.85)
+
+        points = VGroup(point1, point2, point3).arrange(DOWN, aligned_edge=LEFT, buff=0.4)
+
+        # Animate points sequentially
+        self.play(FadeIn(point1), run_time=1.2)
+        self.wait(0.5)
+        self.play(FadeIn(point2), run_time=1.2)
+        self.wait(0.5)
+        self.play(FadeIn(point3), run_time=1.2)
+        self.wait(2)
+
+class ClosingScene(Scene):
+    def construct(self):
+        # Main thank-you message
+        thanks = MathTex(r"\textbf{Thanks for Watching}")
+        thanks.set_color_by_gradient(*GRAD)
+        thanks.scale(1.2)
+        thanks.move_to(UP)  # centered
+
+        # Bottom labels
+        left_label = MathTex(r"\text{Intuimation}").set_color_by_gradient(*GRAD).scale(0.9)
+        right_label = MathTex(r"\text{SoME4}").set_color_by_gradient(*GRAD).scale(0.9)
+
+        bottom_labels = VGroup(left_label, right_label).arrange(RIGHT, buff=3)
+        bottom_labels.to_edge(DOWN, buff=0.8)
+
+        # Animate
+        self.play(FadeIn(thanks), run_time=2.5)
+        self.wait(1)
+        self.play(FadeIn(bottom_labels), run_time=2.0)
+        self.wait(3)
+
+class CheckOutUIScene(Scene):
+    def construct(self):
+        # Header
+        header = MathTex(
+            r"\textbf{Don't forget to check out our interactive UIs!}"
+        ).set_color_by_gradient(*GRAD).scale(0.9)
+        header.to_edge(UP, buff=0.8)
+
+        # List of tools
+        t1 = MathTex(r"\text{Game with Strings \& Electrons}").set_color_by_gradient(*GRAD).scale(0.9)
+        t2 = MathTex(r"\text{Thomson's Charges (2D/3D)}").set_color_by_gradient(*GRAD).scale(0.9)
+        t3 = MathTex(r"\text{Vector Symmetry Generator}").set_color_by_gradient(*GRAD).scale(0.9)
+
+        tools = VGroup(t1, t2, t3).arrange(DOWN, aligned_edge=LEFT, buff=0.45)
+        tools.move_to(ORIGIN).shift(DOWN*0.2)
+
+        # Footer note
+        footer = MathTex(
+            r"\text{These tools powered this video. Links in the description.}"
+        ).set_color_by_gradient(*GRAD).scale(0.8)
+        footer.to_edge(DOWN, buff=0.8)
+
+        # Animations
+        self.play(Write(header), run_time=1.8)
+        self.wait(0.4)
+        self.play(Write(t1), run_time=0.9)
+        self.play(Write(t2), run_time=0.9)
+        self.play(Write(t3), run_time=0.9)
+        self.wait(0.5)
+        self.play(Write(footer), run_time=1.2)
+        self.wait(2)
+
+class LaTeXProofs(Scene):
+    def construct(self):
+        # Header message at top
+        header = MathTex(
+            r"\textbf{Also don't forget to check the \LaTeX{} document for deep proofs.}"
+        ).set_color_by_gradient(*GRAD).scale(0.9)
+        header.to_edge(UP, buff=0.8)
+
+        # Footer note at bottom
+        footer = MathTex(
+            r"\text{Full step-by-step derivations, references, and notation — link in the description.}"
+        ).set_color_by_gradient(*GRAD).scale(0.8)
+        footer.to_edge(DOWN, buff=0.8)
+
+        # Animations
+        self.play(Write(header), run_time=2.0)
+        self.wait(0.5)
+        self.play(Write(footer), run_time=1.4)
+        self.wait(2)
