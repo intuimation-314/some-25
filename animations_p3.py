@@ -587,3 +587,32 @@ class PermutationScene(Scene):
         concl2.scale(0.85).next_to(concl, DOWN, buff=0.8)
         self.play(FadeIn(concl2, shift=0.2*UP), run_time=0.7)
         self.wait(0.8)
+
+class ThinkingMuBot1(Scene):
+    def construct(self):
+        title = MathTex(
+            r'\text{``Climbing into Higher Dimensions``}',
+            font_size=48
+        ).set_color_by_gradient(BLUE, GREEN).to_edge(UP)
+        self.play(FadeIn(title))
+
+        # Thought bubbles (dots leading to cloud)
+        dot1 = Dot(radius=0.08, color=WHITE).move_to(2*DL).shift(1.5*LEFT + 0.5*UP)
+        dot2 = Dot(radius=0.12, color=WHITE).next_to(dot1, UR, buff=0.2)
+        dot3 = Dot(radius=0.16, color=WHITE).next_to(dot2, UR, buff=0.2)
+
+        # Thinking cloud (Rounded Rectangle)
+        thinking_cloud = RoundedRectangle(width=7, height=2.5, corner_radius=0.3, color=WHITE, fill_opacity=0.2)
+        thinking_cloud.next_to(dot3, UR)
+
+        tex1 = Tex("Same argumet holds in higher dimesion").scale(0.8).arrange(DOWN).move_to(thinking_cloud.get_center())
+        tex2 = Tex("nxn matrices in SO(n)").scale(0.8).move_to(thinking_cloud.get_center())
+        tex3 = Tex("the same symmetry reasoning applies!").scale(0.8).move_to(thinking_cloud.get_center())
+
+        self.play(FadeIn(VGroup(dot1, dot2, dot3, thinking_cloud)))
+        self.play(Write(tex1))
+        self.play(Transform(tex1, tex2))
+        self.wait()
+        self.play(Transform(tex1, tex3))
+        self.wait(2)
+        # self.add(title, dot1, dot2, dot3, thinking_cloud)
