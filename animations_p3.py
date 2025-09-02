@@ -798,11 +798,14 @@ class LaTeXProofs(Scene):
         self.play(Write(footer), run_time=1.4)
         self.wait(2)
 
-class SymmetryMessage(Scene):
+class Strings(Scene):
     def construct(self):
         # Main title
         message = MathTex(
-            r"\textbf{Imagine tying electrons to ends of string !}"
+            r"\textbf{Imagine tying electrons to the ends of strings !}"
         )
         message.set_color_by_gradient(*GRAD)
-        message.scale(0.9)
+        message.scale(0.9).to_edge(UP)
+
+        self.play(Write(message))
+        self.wait(2)
